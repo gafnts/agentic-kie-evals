@@ -14,10 +14,16 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-dependencies = []
+dependencies = [
+  "agentic-kie[all]>=0.4.1",
+  "altair>=6",
+  "nda",
+  "polars>=1.39.3",
+]
 
 [dependency-groups]
 dev = [
+  "ipykernel>=7.2",
   "mypy>=1.19",
   "pre-commit>=4.5",
   "pyproject-fmt>=2.21",
@@ -31,6 +37,7 @@ dev = [
 build.targets.wheel.packages = [ "src/agentic_kie_evals" ]
 
 [tool.uv]
+sources.nda = { git = "https://github.com/gafnts/kleister-nda-preparation.git" }
 link-mode = "copy"
 
 [tool.ruff]
