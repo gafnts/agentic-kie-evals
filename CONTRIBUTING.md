@@ -36,5 +36,3 @@ GitHub Actions runs two sequential jobs on every push and pull request to `main`
 2. **`test`**: runs `pytest` with branch coverage and uploads the `coverage.xml` report to Codecov.
 
 Coverage is enforced at 95%.
-
-

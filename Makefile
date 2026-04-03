@@ -19,4 +19,3 @@ check:
 
 test:
 	uv run pytest --cov --cov-branch --cov-report=xml -v
-
