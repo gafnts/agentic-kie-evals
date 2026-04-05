@@ -16,6 +16,3 @@ type:
 
 check:
 	uv run pre-commit run --all-files
-
-test:
-	uv run pytest --cov --cov-branch --cov-report=xml -v

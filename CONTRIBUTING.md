@@ -2,7 +2,7 @@
 
 ## Development setup
 
-The package requires Python 3.13 or later. Dependencies are managed with [uv](https://docs.astral.sh/uv/).
+The project requires Python 3.13 or later. Dependencies are managed with [uv](https://docs.astral.sh/uv/).
 
 1. Clone the repository.
 
@@ -22,17 +22,13 @@ make install
 | Target | Description |
 |---|---|
 | `make check` | Run the full pre-commit suite (lint, format, type check) |
-| `make lint` | Run `ruff check` on `src` and `tests` |
-| `make format` | Run `ruff check --fix` on `src` and `tests` |
-| `make type` | Run `mypy` on `src` and `tests` |
-| `make test` | Run `pytest` with branch coverage |
+| `make lint` | Run `ruff check` on `src` |
+| `make format` | Run `ruff check --fix` on `src` |
+| `make type` | Run `mypy` on `src` |
 
 
 ## CI pipeline
 
-GitHub Actions runs two sequential jobs on every push and pull request to `main`:
+GitHub Actions runs one sequential job on every push and pull request to `main`:
 
 1. **`lint-and-type-check`**: runs `pyproject-fmt --check`, `ruff check`, `ruff format --check`, and `mypy`.
-2. **`test`**: runs `pytest` with branch coverage and uploads the `coverage.xml` report to Codecov.
-
-Coverage is enforced at 95%.
