@@ -1492,8 +1492,8 @@ wheels = [
 
 [[package]]
 name = "nda"
-version = "0.3.0"
-source = { git = "https://github.com/gafnts/kleister-nda-preparation.git#b53d7ec557a6edc77f06613a40f817004d61f7ae" }
+version = "0.4.0"
+source = { git = "https://github.com/gafnts/kleister-nda-preparation.git#b341260498fe3ca94dc8badd8a60c8b0bed392ba" }
 dependencies = [
     { name = "pandas" },
     { name = "pyarrow" },
