@@ -1,9 +1,9 @@
-# agentic-kie-evals
+# Agentic KIE Evals
 
 [![CI](https://github.com/gafnts/agentic-kie-evals/actions/workflows/ci.yml/badge.svg)](https://github.com/gafnts/agentic-kie-evals/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Benchmarking single-pass and agentic extraction strategies across LLM providers on the Kleister NDA dataset
+Evaluation suite for [Agentic KIE](https://github.com/gafnts/agentic-kie), benchmarking its single-pass and agentic strategies across LLM providers on the Kleister NDA dataset.
 
 ## Installation
 
@@ -19,7 +19,9 @@ make install
 
 ## Dataset
 
-This project uses the [Kleister NDA](https://github.com/applicaai/kleister-nda) dataset from Applica AI: 254 train / 83 dev / 203 test NDA documents sourced from SEC Edgar, annotated with four entity types: `effective_date`, `jurisdiction`, `party`, and `term`.
+This project uses the [Kleister NDA](https://github.com/applicaai/kleister-nda) dataset from Applica AI, which consists of NDA documents sourced from SEC Edgar, annotated with four entity types: `effective_date`, `jurisdiction`, `party`, and `term`.
+
+Dataset preprocessing and delivery is handled by [kleister-nda-preparation](https://github.com/gafnts/kleister-nda-preparation). The preparation pipeline reads the original TSV partitions, transforms raw labels into structured records validated against a Pydantic schema, relocates the corresponding PDF documents, and writes the results as partitioned Parquet files. This step runs automatically as part of `make install`.
 
 The dataset is hosted in [LangSmith](https://smith.langchain.com/) for evaluation. A `LANGCHAIN_API_KEY` environment variable is required to interact with it.
 
@@ -43,4 +45,4 @@ The upload script is idempotent: re-running it will reuse an existing dataset an
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, available `make` targets, and the CI/CD pipeline.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, available `make` targets, and the CI pipeline.

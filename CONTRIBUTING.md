@@ -17,6 +17,12 @@ cd agentic-kie-evals
 make install
 ```
 
+3. Create a `.env` file if you need to use API keys.
+
+```bash
+cp .env.example .env
+```
+
 ## Available targets
 
 | Target | Description |
