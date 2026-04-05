@@ -52,6 +52,7 @@ dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-timeout" },
+    { name = "python-dotenv" },
     { name = "ruff" },
 ]
 
@@ -65,13 +66,14 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "ipykernel", specifier = ">=7.2.0" },
+    { name = "ipykernel", specifier = ">=7.2" },
     { name = "mypy", specifier = ">=1.19" },
     { name = "pre-commit", specifier = ">=4.5" },
     { name = "pyproject-fmt", specifier = ">=2.21" },
     { name = "pytest", specifier = ">=9" },
     { name = "pytest-cov", specifier = ">=7" },
     { name = "pytest-timeout", specifier = ">=2.4" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "ruff", specifier = ">=0.15" },
 ]
 
