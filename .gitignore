@@ -29,3 +29,6 @@ coverage.xml
 
 # macOS
 .DS_Store
+
+# NDA data
+notebooks/data/

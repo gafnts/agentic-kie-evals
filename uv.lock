@@ -41,6 +41,7 @@ dependencies = [
     { name = "altair" },
     { name = "nda" },
     { name = "polars" },
+    { name = "tiktoken" },
 ]
 
 [package.dev-dependencies]
@@ -59,6 +60,7 @@ requires-dist = [
     { name = "altair", specifier = ">=6" },
     { name = "nda", git = "https://github.com/gafnts/kleister-nda-preparation.git" },
     { name = "polars", specifier = ">=1.39.3" },
+    { name = "tiktoken", specifier = ">=0.12" },
 ]
 
 [package.metadata.requires-dev]
