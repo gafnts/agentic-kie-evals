@@ -43,6 +43,56 @@ uv run python -m agentic_kie_evals.upload_dataset --recreate
 
 The upload script is idempotent: re-running it will reuse an existing dataset and deterministic example IDs prevent duplicates.
 
+## Running the Benchmark
+
+Requires `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, or `OPENAI_API_KEY` depending on the models being evaluated, plus a `LANGCHAIN_API_KEY` to read from and write results to LangSmith.
+
+```bash
+# Dry run — see what would execute without making API calls
+uv run python -m agentic_kie_evals.run_benckmark --dry-run
+
+# Single quick test (one model / strategy / modality, 10 examples)
+uv run python -m agentic_kie_evals.run_benckmark \
+    --model claude-haiku --strategy single_pass --modality text \
+    --max-concurrency 1 --limit 10
+
+# Full matrix on the train split (default)
+uv run python -m agentic_kie_evals.run_benckmark
+
+# Final benchmark on the dev split
+uv run python -m agentic_kie_evals.run_benckmark --split dev
+```
+
+### CLI reference
+
+| Flag | Choices | Default | Description |
+|---|---|---|---|
+| `--model` | `claude-haiku`, `gemini-flash`, `gpt` | all | Restrict to a single model |
+| `--strategy` | `single_pass`, `agentic` | both | Restrict to a single extraction strategy |
+| `--modality` | `text`, `multimodal` | both | Restrict to a single modality (single-pass only) |
+| `--split` | `train`, `dev`, `test` | `train` | Dataset split to evaluate against |
+| `--max-concurrency` | int | `4` | Max concurrent evaluations |
+| `--limit` | int | none | Cap the number of examples evaluated |
+| `--dry-run` | — | false | Print the experiment matrix and exit |
+
+The experiment matrix is `model × strategy × modality`. The `agentic` strategy does not accept a modality parameter and is always run without it. Each experiment is logged to LangSmith under the prefix `{model}--{strategy}--{modality}`.
+
+## Evaluators
+
+Evaluators live in `agentic_kie_evals.evaluators` and follow the LangSmith custom evaluator signature `(outputs, reference_outputs) -> {"key": str, "score": float}`. Normalization (lowercasing, whitespace trimming, trailing-period stripping) is applied to both sides before comparison.
+
+| Evaluator | Field | Method | Score |
+|---|---|---|---|
+| `exact_effective_date` | `effective_date` | Exact match | 0 or 1 |
+| `exact_jurisdiction` | `jurisdiction` | Exact match | 0 or 1 |
+| `fuzzy_jurisdiction` | `jurisdiction` | SequenceMatcher ≥ 0.85 | 0 or 1 |
+| `exact_term` | `term` | Exact match | 0 or 1 |
+| `fuzzy_term` | `term` | SequenceMatcher ≥ 0.85 | 0 or 1 |
+| `exact_party` | `party` | Set F1, exact string | 0–1 continuous |
+| `fuzzy_party` | `party` | Set F1, SequenceMatcher ≥ 0.85 | 0–1 continuous |
+
+`exact_party` and `fuzzy_party` compute precision and recall independently over the set of party names, then return their F1. Both `None` predictions and `None` references on scalar fields score 1.0 (true negative); a mismatch scores 0.0.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, available `make` targets, and the CI pipeline.
