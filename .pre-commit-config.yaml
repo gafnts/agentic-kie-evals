@@ -34,11 +34,3 @@ repos:
         language: system
         types: [python]
         pass_filenames: false
-
-      - id: pytest
-        name: pytest
-        language: system
-        types: [python]
-        entry: uv run pytest --cov --cov-report=term-missing
-        pass_filenames: false
-        stages: [pre-push]

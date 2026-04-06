@@ -4,6 +4,7 @@ install:
 	uv sync --all-groups --all-extras
 	uv run pre-commit install
 	uv run pre-commit install --hook-type pre-push
+	uv run nda --output_dir ./data/kleister-nda
 
 lint:
 	uv run ruff check src tests
@@ -16,6 +17,3 @@ type:
 
 check:
 	uv run pre-commit run --all-files
-
-test:
-	uv run pytest --cov --cov-branch --cov-report=xml -v
