@@ -47,7 +47,8 @@ SINGLE_PASS_MODALITIES = ("text", "multimodal")
 def make_target(
     extractor: SinglePassExtractor[NDA] | AgenticExtractor[NDA],
 ) -> Callable[[dict[str, Any], dict[str, Any]], dict[str, Any]]:
-    """Create a LangSmith target function that captures the extractor.
+    """
+    Create a LangSmith target function that captures the extractor.
 
     The target receives (inputs, attachments) as positional args — this
     is a LangSmith requirement for attachment-based evaluation. It reads
@@ -91,7 +92,9 @@ def run_experiment(
     max_concurrency: int = 4,
     limit: int | None = None,
 ) -> None:
-    """Run a single experiment against the LangSmith dataset."""
+    """
+    Run a single experiment against the LangSmith dataset.
+    """
     experiment_prefix = f"{model_name}--{strategy}--{modality}"
 
     metadata = {
@@ -130,7 +133,9 @@ def build_experiment_matrix(
     strategy_filter: str | None = None,
     modality_filter: str | None = None,
 ) -> list[dict[str, str]]:
-    """Build the list of experiments to run, optionally filtered."""
+    """
+    Build the list of experiments to run, optionally filtered.
+    """
     experiments: list[dict[str, str]] = []
 
     for model_name in MODELS:
