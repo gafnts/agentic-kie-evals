@@ -23,9 +23,9 @@ This project uses the [Kleister NDA](https://github.com/applicaai/kleister-nda) 
 
 Dataset preprocessing and delivery is handled by [kleister-nda-preparation](https://github.com/gafnts/kleister-nda-preparation). The preparation pipeline reads the original TSV partitions, transforms raw labels into structured records validated against a Pydantic schema, relocates the corresponding PDF documents, and writes the results as partitioned Parquet files. This step runs automatically as part of `make install`.
 
-The dataset is hosted in [LangSmith](https://smith.langchain.com/) for evaluation. A `LANGCHAIN_API_KEY` environment variable is required to interact with it.
+### Uploading the dataset to LangSmith
 
-### Uploading the dataset
+The dataset is hosted in [LangSmith](https://smith.langchain.com/) for evaluation. A `LANGCHAIN_API_KEY` environment variable is required to interact with it.
 
 ```bash
 # Dry run (validates parquet files and PDF paths, no API calls)
