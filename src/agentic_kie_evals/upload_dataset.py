@@ -12,7 +12,7 @@ import polars as pl
 from dotenv import load_dotenv
 from langsmith import Client
 
-STATIC_DIR = Path(__file__).parent / "static" / "kleister-nda"
+STATIC_DIR = Path(__file__).parents[2] / "data" / "kleister-nda"
 
 PARTITIONS: dict[str, str] = {
     "train": "train",
