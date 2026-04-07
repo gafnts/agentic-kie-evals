@@ -1,4 +1,6 @@
-"""One-time script to upload the Kleister NDA dataset to LangSmith."""
+"""
+One-time script to upload the Kleister NDA dataset to LangSmith.
+"""
 
 from __future__ import annotations
 
@@ -12,6 +14,8 @@ import polars as pl
 from dotenv import load_dotenv
 from langsmith import Client
 
+load_dotenv()
+
 STATIC_DIR = Path(__file__).parents[2] / "data" / "kleister-nda"
 
 PARTITIONS: dict[str, str] = {
@@ -20,14 +24,16 @@ PARTITIONS: dict[str, str] = {
     "test-A": "test",
 }
 
-NAMESPACE_UUID = uuid.UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
+NAMESPACE_UUID: UUID = UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
 
 DEFAULT_DATASET_NAME = "kleister-nda"
 DEFAULT_BATCH_SIZE = 20
 
 
 def read_partition(partition_dir: str, split_name: str) -> list[dict[str, Any]]:
-    """Read a partition's parquet and build LangSmith example dicts."""
+    """
+    Read a partition's parquet and build LangSmith example dicts.
+    """
     partition_path = STATIC_DIR / partition_dir
     parquet_path = partition_path / "data.parquet"
     documents_path = partition_path / "documents"
@@ -86,7 +92,9 @@ def get_or_create_dataset(
     *,
     recreate: bool = False,
 ) -> UUID:
-    """Return dataset ID, creating the dataset if needed."""
+    """
+    Return dataset ID, creating the dataset if needed.
+    """
     if recreate:
         try:
             client.delete_dataset(dataset_name=dataset_name)
@@ -119,7 +127,9 @@ def upload_partition(
     batch_size: int = DEFAULT_BATCH_SIZE,
     dry_run: bool = False,
 ) -> None:
-    """Upload examples in batches to LangSmith."""
+    """
+    Upload examples in batches to LangSmith.
+    """
     total = len(examples)
 
     for i in range(0, total, batch_size):
@@ -141,9 +151,7 @@ def upload_partition(
         print(f"  Uploaded batch {batch_num}/{total_batches}: {len(batch)} examples")
 
 
-def main() -> None:
-    load_dotenv()
-
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Upload Kleister NDA dataset to LangSmith"
     )
@@ -175,7 +183,11 @@ def main() -> None:
         action="store_true",
         help="Validate without uploading",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main() -> None:
+    args = parse_args()
 
     client = Client()
 
