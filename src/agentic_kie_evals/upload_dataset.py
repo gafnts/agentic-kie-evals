@@ -5,6 +5,7 @@ One-time script to upload the Kleister NDA dataset to LangSmith.
 from __future__ import annotations
 
 import argparse
+import logging
 import uuid
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,9 @@ from langsmith import Client
 
 load_dotenv()
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 STATIC_DIR = Path(__file__).parents[2] / "data" / "kleister-nda"
 
 PARTITIONS: dict[str, str] = {
@@ -24,8 +28,7 @@ PARTITIONS: dict[str, str] = {
     "test-A": "test",
 }
 
-NAMESPACE_UUID: UUID = UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
-
+NAMESPACE_UUID = UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
 DEFAULT_DATASET_NAME = "kleister-nda"
 DEFAULT_BATCH_SIZE = 20
 
@@ -46,7 +49,7 @@ def read_partition(partition_dir: str, split_name: str) -> list[dict[str, Any]]:
         pdf_path = documents_path / filename
 
         if not pdf_path.exists():
-            print(f"  WARNING: PDF not found for {filename}, skipping")
+            logger.warning("PDF not found for %s, skipping", filename)
             continue
 
         if "labels_schema" in row:
@@ -98,12 +101,12 @@ def get_or_create_dataset(
     if recreate:
         try:
             client.delete_dataset(dataset_name=dataset_name)
-            print(f"Deleted existing dataset: {dataset_name}")
+            logger.info("Deleted existing dataset: %s", dataset_name)
         except Exception:
             pass
 
     try:
-        dataset = client.create_dataset(  # pyright: ignore[reportUnknownMemberType]
+        dataset = client.create_dataset(
             dataset_name=dataset_name,
             description=(
                 "Kleister NDA dataset (Applica AI). "
@@ -112,11 +115,11 @@ def get_or_create_dataset(
                 "effective_date, jurisdiction, party, term."
             ),
         )
-        print(f"Created dataset: {dataset_name} ({dataset.id})")
+        logger.info("Created dataset: %s (%s)", dataset_name, dataset.id)
         return dataset.id
     except Exception:
         dataset = client.read_dataset(dataset_name=dataset_name)
-        print(f"Using existing dataset: {dataset_name} ({dataset.id})")
+        logger.info("Using existing dataset: %s (%s)", dataset_name, dataset.id)
         return UUID(str(dataset.id))
 
 
@@ -131,24 +134,29 @@ def upload_partition(
     Upload examples in batches to LangSmith.
     """
     total = len(examples)
+    total_batches = (total + batch_size - 1) // batch_size
 
     for i in range(0, total, batch_size):
         batch = examples[i : i + batch_size]
         batch_num = i // batch_size + 1
-        total_batches = (total + batch_size - 1) // batch_size
 
         if dry_run:
-            print(
-                f"  [DRY RUN] Batch {batch_num}/{total_batches}: {len(batch)} examples"
+            logger.info(
+                "[DRY RUN] Batch %d/%d: %d examples",
+                batch_num,
+                total_batches,
+                len(batch),
             )
             continue
 
-        client.create_examples(  # pyright: ignore[reportUnknownMemberType]
+        client.create_examples(
             dataset_id=dataset_id,
             examples=batch,
             dangerously_allow_filesystem=True,
         )
-        print(f"  Uploaded batch {batch_num}/{total_batches}: {len(batch)} examples")
+        logger.info(
+            "Uploaded batch %d/%d: %d examples", batch_num, total_batches, len(batch)
+        )
 
 
 def parse_args() -> argparse.Namespace:
@@ -188,12 +196,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-
     client = Client()
-
     dataset_id: UUID | str
+
     if args.dry_run:
-        print(f"[DRY RUN] Would create dataset: {args.dataset_name}")
+        logger.info("Dry run mode. Would create dataset: %s", args.dataset_name)
         dataset_id = "dry-run"
     else:
         dataset_id = get_or_create_dataset(
@@ -202,10 +209,10 @@ def main() -> None:
 
     for partition_dir in args.partitions:
         split_name = PARTITIONS[partition_dir]
-        print(f"\nProcessing partition: {partition_dir} → split: {split_name}")
+        logger.info("Processing partition: %s → split: %s", partition_dir, split_name)
 
         examples = read_partition(partition_dir, split_name)
-        print(f"  Found {len(examples)} examples")
+        logger.info("Found %d examples", len(examples))
 
         upload_partition(
             client=client,
@@ -215,7 +222,7 @@ def main() -> None:
             dry_run=args.dry_run,
         )
 
-    print("\nDone.")
+    logger.info("Done.")
 
 
 if __name__ == "__main__":
