@@ -6,6 +6,8 @@ LangSmith dataset and scores each run with the evaluators defined in
 evaluators.py.
 """
 
+from __future__ import annotations
+
 import argparse
 import logging
 import tempfile
@@ -24,12 +26,18 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langsmith import Client, evaluate
 from nda import NDA
+from rich.logging import RichHandler
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn
 
 from .evaluators import ALL_EVALUATORS
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[RichHandler(rich_tracebacks=True, show_path=False)],
+)
 logger = logging.getLogger(__name__)
 
 
@@ -58,7 +66,6 @@ def make_target(
     """
 
     def target(inputs: dict[str, Any], attachments: dict[str, Any]) -> dict[str, Any]:
-        print(f"attachment keys: {list(attachments.keys())}")
         pdf_bytes = attachments["document"]["reader"].read()
 
         # PDFLoader requires a file path, so write bytes to a temp file
@@ -264,17 +271,27 @@ def main() -> None:
 
     splits = [args.split]
 
-    for exp in experiments:
-        extractor = make_extractor(exp["model_name"], exp["strategy"], exp["modality"])
-        run_experiment(
-            extractor,
-            model_name=exp["model_name"],
-            strategy=exp["strategy"],
-            modality=exp["modality"],
-            splits=splits,
-            max_concurrency=args.max_concurrency,
-            limit=args.limit,
-        )
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+    ) as progress:
+        task = progress.add_task("Running experiments", total=len(experiments))
+
+        for exp in experiments:
+            extractor = make_extractor(
+                exp["model_name"], exp["strategy"], exp["modality"]
+            )
+            run_experiment(
+                extractor,
+                model_name=exp["model_name"],
+                strategy=exp["strategy"],
+                modality=exp["modality"],
+                splits=splits,
+                max_concurrency=args.max_concurrency,
+                limit=args.limit,
+            )
+            progress.advance(task)
 
     logger.info("All experiments complete.")
 

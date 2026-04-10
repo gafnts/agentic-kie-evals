@@ -28,11 +28,18 @@ from uuid import UUID
 import polars as pl
 from dotenv import load_dotenv
 from langsmith import Client
+from rich.logging import RichHandler
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[RichHandler(rich_tracebacks=True, show_path=False)],
+)
 logger = logging.getLogger(__name__)
+
 
 STATIC_DIR = Path(__file__).parents[2] / "data" / "kleister-nda"
 
@@ -150,27 +157,28 @@ def upload_partition(
     total = len(examples)
     total_batches = (total + batch_size - 1) // batch_size
 
-    for i in range(0, total, batch_size):
-        batch = examples[i : i + batch_size]
-        batch_num = i // batch_size + 1
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        transient=True,
+    ) as progress:
+        task = progress.add_task("Uploading batches", total=total_batches)
 
-        if dry_run:
-            logger.info(
-                "[DRY RUN] Batch %d/%d: %d examples",
-                batch_num,
-                total_batches,
-                len(batch),
-            )
-            continue
+        for i in range(0, total, batch_size):
+            batch = examples[i : i + batch_size]
 
-        client.create_examples(
-            dataset_id=dataset_id,
-            examples=batch,
-            dangerously_allow_filesystem=True,
-        )
-        logger.info(
-            "Uploaded batch %d/%d: %d examples", batch_num, total_batches, len(batch)
-        )
+            if not dry_run:
+                client.create_examples(
+                    dataset_id=dataset_id,
+                    examples=batch,
+                    dangerously_allow_filesystem=True,
+                )
+
+            progress.advance(task)
+
+    verb = "[DRY RUN] Would upload" if dry_run else "Uploaded"
+    logger.info("%s %d examples in %d batches", verb, total, total_batches)
 
 
 def parse_args() -> argparse.Namespace:
