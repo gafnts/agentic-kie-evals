@@ -1,5 +1,19 @@
 """
-One-time script to upload the Kleister NDA dataset to LangSmith.
+Uploads the Kleister NDA dataset to LangSmith.
+
+Reads the preprocessed Parquet files and PDF documents produced by the
+kleister-nda-preparation package and creates a LangSmith dataset with
+one example per document. Each example includes the structured labels
+as outputs and the PDF as an attachment.
+
+Partition-to-split mapping:
+    train → train
+    dev-0 → dev
+    test-A → test
+
+The script is idempotent: it reuses an existing dataset and derives
+deterministic example IDs from filenames, so re-running it will not
+create duplicates.
 """
 
 from __future__ import annotations

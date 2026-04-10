@@ -7,45 +7,45 @@ Evaluation suite for [Agentic KIE](https://github.com/gafnts/agentic-kie), bench
 
 ## Installation
 
-Requires Python 3.13 or later. Dependencies are managed with [uv](https://docs.astral.sh/uv/).
-
-
-```bash
-git clone https://github.com/gafnts/agentic-kie-evals.git
-cd agentic-kie-evals
-make install
-```
-
+Requires Python 3.13+ and [uv](https://docs.astral.sh/uv/). See [CONTRIBUTING.md](CONTRIBUTING.md) for full setup instructions, available `make` targets, and environment configuration.
 
 ## Dataset
 
 This project uses the [Kleister NDA](https://github.com/applicaai/kleister-nda) dataset from Applica AI, which consists of NDA documents sourced from SEC Edgar, annotated with four entity types: `effective_date`, `jurisdiction`, `party`, and `term`.
 
-Dataset preprocessing and delivery is handled by [kleister-nda-preparation](https://github.com/gafnts/kleister-nda-preparation). The preparation pipeline reads the original TSV partitions, transforms raw labels into structured records validated against a Pydantic schema, relocates the corresponding PDF documents, and writes the results as partitioned Parquet files. This step runs automatically as part of `make install`.
+Dataset preprocessing and delivery is handled by the Python package [kleister-nda-preparation](https://github.com/gafnts/kleister-nda-preparation). The preparation pipeline reads the original TSV partitions, transforms raw labels into structured records validated against a Pydantic schema, relocates the corresponding PDF documents, and writes the results as partitioned Parquet files.
+
+> This step runs automatically as part of `make install`.
 
 ### Uploading the dataset to LangSmith
 
-The dataset is hosted in [LangSmith](https://smith.langchain.com/) for evaluation. A `LANGCHAIN_API_KEY` environment variable is required to interact with it.
+Before running the benchmark, the preprocessed Parquet files and their PDF attachments need to be uploaded to [LangSmith](https://smith.langchain.com/). The `upload_dataset.py` module supports several behaviors:
 
+1. Dry run (validates parquet files and PDF paths, no API calls)
 ```bash
-# Dry run (validates parquet files and PDF paths, no API calls)
 uv run python -m agentic_kie_evals.upload_dataset --dry-run
+```
 
-# Upload all partitions
+2. Upload all partitions
+```bash
 uv run python -m agentic_kie_evals.upload_dataset
+```
 
-# Upload specific partitions
+3. Upload specific partitions
+```bash
 uv run python -m agentic_kie_evals.upload_dataset --partitions train dev-0
+```
 
-# Delete and recreate the dataset from scratch
+4. Delete and recreate the dataset from scratch
+```bash
 uv run python -m agentic_kie_evals.upload_dataset --recreate
 ```
 
-The upload script is idempotent: re-running it will reuse an existing dataset and deterministic example IDs prevent duplicates.
+> The upload script is idempotent: re-running it is safe. It reuses an existing dataset and deterministic example IDs prevent duplicates.
 
-## Running the Benchmark
+## Running the benchmark
 
-Requires `ANTHROPIC_API_KEY`, `GOOGLE_API_KEY`, or `OPENAI_API_KEY` depending on the models being evaluated, plus a `LANGCHAIN_API_KEY` to read from and write results to LangSmith.
+The benchmark runner evaluates the full experiment matrix (`model × strategy × modality`) against the LangSmith dataset. Each run is scored by the evaluators and logged back to LangSmith under the prefix `{model}--{strategy}--{modality}`.
 
 ```bash
 # Dry run — see what would execute without making API calls
@@ -75,7 +75,7 @@ uv run python -m agentic_kie_evals.run_benckmark --split dev
 | `--limit` | int | none | Cap the number of examples evaluated |
 | `--dry-run` | — | false | Print the experiment matrix and exit |
 
-The experiment matrix is `model × strategy × modality`. The `agentic` strategy does not accept a modality parameter and is always run without it. Each experiment is logged to LangSmith under the prefix `{model}--{strategy}--{modality}`.
+The `agentic` strategy does not accept a modality parameter and is always run without it.
 
 ## Evaluators
 
@@ -95,4 +95,4 @@ Evaluators live in `agentic_kie_evals.evaluators` and follow the LangSmith custo
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, available `make` targets, and the CI pipeline.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, available `make` targets, and the CI pipeline.
