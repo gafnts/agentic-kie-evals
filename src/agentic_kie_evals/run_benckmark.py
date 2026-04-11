@@ -16,8 +16,7 @@ from itertools import islice
 from pathlib import Path
 from typing import Any, Literal, cast
 
-from agentic_kie.extractors.agent import AgenticExtractor
-from agentic_kie.extractors.single_pass import SinglePassExtractor
+from agentic_kie.extractors import AgenticExtractor, SinglePassExtractor
 from agentic_kie.loader import PDFLoader
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
@@ -44,12 +43,13 @@ logger = logging.getLogger(__name__)
 DATASET_NAME = "kleister-nda"
 
 MODELS: dict[str, Callable[[], BaseChatModel]] = {
-    "claude-haiku": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
-    "gemini-flash": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
-    "gpt": lambda: ChatOpenAI(model="gpt-4.1-mini"),
+    "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
+    "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
+    "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
 }
 
-SINGLE_PASS_MODALITIES = ("text", "multimodal")
+SINGLE_PASS_MODALITIES = ("text", "image")
+AGENTIC_MODALITIES = ("multimodal",)
 
 
 def make_target(
@@ -58,7 +58,7 @@ def make_target(
     """
     Create a LangSmith target function that captures the extractor.
 
-    The target receives (inputs, attachments) as positional args — this
+    The target receives (inputs, attachments) as positional args. This
     is a LangSmith requirement for attachment-based evaluation. It reads
     the PDF bytes from the attachment, writes them to a temp file (since
     PDFLoader accepts a Path), runs extraction, and returns the result
@@ -162,17 +162,18 @@ def build_experiment_matrix(
                     }
                 )
 
-        # Agentic: model only (no modality param)
-        if (
-            strategy_filter is None or strategy_filter == "agentic"
-        ) and modality_filter is None:
-            experiments.append(
-                {
-                    "model_name": model_name,
-                    "strategy": "agentic",
-                    "modality": "n/a",
-                }
-            )
+        # Agentic: model × modality
+        if strategy_filter is None or strategy_filter == "agentic":
+            for modality in AGENTIC_MODALITIES:
+                if modality_filter and modality != modality_filter:
+                    continue
+                experiments.append(
+                    {
+                        "model_name": model_name,
+                        "strategy": "agentic",
+                        "modality": modality,
+                    }
+                )
 
     return experiments
 
@@ -192,7 +193,11 @@ def make_extractor(
             modality=cast(Literal["text", "image", "multimodal"], modality),
         )
     elif strategy == "agentic":
-        return AgenticExtractor(model=model, schema=NDA)
+        return AgenticExtractor(
+            model=model,
+            schema=NDA,
+            modality=cast(Literal["text", "image", "multimodal"], modality),
+        )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
@@ -215,7 +220,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--modality",
-        choices=["text", "multimodal"],
+        choices=["text", "image", "multimodal"],
         default=None,
         help="Run only this modality (single_pass only). Default: both.",
     )
@@ -266,7 +271,7 @@ def main() -> None:
         )
 
     if args.dry_run:
-        logger.info("Dry run — exiting without executing.")
+        logger.info("Dry run: Exiting without executing.")
         return
 
     splits = [args.split]
