@@ -5,9 +5,9 @@ Each public evaluator follows the LangSmith custom evaluator signature:
     def evaluator(outputs: dict, reference_outputs: dict) -> dict
 
 Returns {"key": str, "score": float} where score is a continuous value
-in [0.0, 1.0].  Every entity field is scored using set-based precision,
-recall, and F1: scalar fields are treated as sets of size 0 or 1, while
-the party list field is a variable-size set.
+in [0.0, 1.0].  Every entity field is scored using set-based F1: scalar
+fields are treated as sets of size 0 or 1, while the party list field is
+a variable-size set.
 
 Normalization (lowercasing, whitespace and trailing-period stripping) is
 applied to both sides before comparison.
@@ -71,11 +71,9 @@ def _best_fuzzy_match(candidate: str, reference_set: set[str]) -> bool:
     )
 
 
-def _set_scores(
-    predicted: set[str], expected: set[str], *, fuzzy: bool
-) -> tuple[float, float, float]:
+def _set_f1(predicted: set[str], expected: set[str], *, fuzzy: bool) -> float:
     """
-    Compute precision, recall, and F1 between two sets of strings.
+    Compute F1 between two sets of strings.
 
     If *fuzzy* is True, matching uses ``SequenceMatcher`` with
     ``FUZZY_THRESHOLD``.  If False, matching is exact string equality.
@@ -83,13 +81,11 @@ def _set_scores(
     For fuzzy matching, precision and recall are computed independently
     because a fuzzy match is not necessarily symmetric — a predicted name
     might fuzzy-match a different expected name than vice versa.
-
-    Returns ``(precision, recall, f1)``.
     """
     if not predicted and not expected:
-        return 1.0, 1.0, 1.0
+        return 1.0
     if not predicted or not expected:
-        return 0.0, 0.0, 0.0
+        return 0.0
 
     if fuzzy:
         tp_precision = sum(1 for p in predicted if _best_fuzzy_match(p, expected))
@@ -102,11 +98,9 @@ def _set_scores(
     recall = tp_recall / len(expected)
 
     if precision + recall == 0:
-        return 0.0, 0.0, 0.0
+        return 0.0
 
-    f1 = 2 * precision * recall / (precision + recall)
-
-    return precision, recall, f1
+    return 2 * precision * recall / (precision + recall)
 
 
 def _make_field_evaluators(
@@ -137,32 +131,18 @@ def _make_field_evaluators(
             _scalar_to_set(_normalize_for_eval(reference_outputs.get(field))),
         )
 
-    def precision_eval(
-        outputs: dict[str, Any], reference_outputs: dict[str, Any]
-    ) -> dict[str, Any]:
-        predicted, expected = _get_sets(outputs, reference_outputs)
-        p, _, _ = _set_scores(predicted, expected, fuzzy=fuzzy)
-        return {"key": f"{prefix}_{field}_precision", "score": p}
-
-    def recall_eval(
-        outputs: dict[str, Any], reference_outputs: dict[str, Any]
-    ) -> dict[str, Any]:
-        predicted, expected = _get_sets(outputs, reference_outputs)
-        _, r, _ = _set_scores(predicted, expected, fuzzy=fuzzy)
-        return {"key": f"{prefix}_{field}_recall", "score": r}
-
     def f1_eval(
         outputs: dict[str, Any], reference_outputs: dict[str, Any]
     ) -> dict[str, Any]:
         predicted, expected = _get_sets(outputs, reference_outputs)
-        _, _, f1 = _set_scores(predicted, expected, fuzzy=fuzzy)
-        return {"key": f"{prefix}_{field}_f1", "score": f1}
+        return {
+            "key": f"{prefix}_{field}_f1",
+            "score": _set_f1(predicted, expected, fuzzy=fuzzy),
+        }
 
-    precision_eval.__name__ = f"{prefix}_{field}_precision"
-    recall_eval.__name__ = f"{prefix}_{field}_recall"
     f1_eval.__name__ = f"{prefix}_{field}_f1"
 
-    return [precision_eval, recall_eval, f1_eval]
+    return [f1_eval]
 
 
 ALL_EVALUATORS: list[Callable[..., dict[str, Any]]] = [
