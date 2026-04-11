@@ -5,9 +5,10 @@ Runs the experiment matrix (model x strategy x modality) against the
 LangSmith dataset and scores each run with the evaluators defined in
 evaluators.py.
 
-Two model tiers are available via the --tier argument:
-  - lite: Cost-optimised models (claude-haiku-4-5, gemini-2.5-flash, gpt-5.4-mini)
-  - standard: Full-capability models (claude-sonnet-4-6, gemini-2.5-pro, gpt-5.4)
+Three model tiers are available via the --tier argument:
+  - lite: Cost-optimised models (claude-haiku-4-5, gemini-3.1-flash-lite-preview, gpt-5.4-mini)
+  - standard: Balanced models (claude-sonnet-4-6, gemini-3.1-flash-preview, gpt-5.4)
+  - flagship: Top-capability models (claude-opus-4-6, gemini-3.1-pro-preview, gpt-5.4-pro)
 """
 
 from __future__ import annotations
@@ -49,12 +50,12 @@ DATASET_NAME = "kleister-nda"
 TIERS: dict[str, dict[str, Callable[[], BaseChatModel]]] = {
     "lite": {
         "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview"),
         "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
     },
     "standard": {
         "claude": lambda: ChatAnthropic(model="claude-sonnet-4-6"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-pro"),
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-flash-preview"),
         "gpt": lambda: ChatOpenAI(model="gpt-5.4"),
     },
     "flagship": {
