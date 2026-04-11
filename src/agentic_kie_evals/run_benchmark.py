@@ -55,13 +55,8 @@ TIERS: dict[str, dict[str, Callable[[], BaseChatModel]]] = {
     },
     "standard": {
         "claude": lambda: ChatAnthropic(model="claude-sonnet-4-6"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-flash-preview"),
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3-flash-preview"),
         "gpt": lambda: ChatOpenAI(model="gpt-5.4"),
-    },
-    "flagship": {
-        "claude": lambda: ChatAnthropic(model="claude-opus-4-6"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview"),
-        "gpt": lambda: ChatOpenAI(model="gpt-5.4-pro"),
     },
 }
 
