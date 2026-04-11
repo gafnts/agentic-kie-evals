@@ -5,9 +5,10 @@ Runs the experiment matrix (model x strategy x modality) against the
 LangSmith dataset and scores each run with the evaluators defined in
 evaluators.py.
 
-Two model tiers are available via the --tier argument:
-  - lite: Cost-optimised models (claude-haiku-4-5, gemini-2.5-flash, gpt-5.4-mini)
-  - standard: Full-capability models (claude-sonnet-4-6, gemini-2.5-pro, gpt-5.4)
+Three model tiers are available via the --tier argument:
+  - lite: Cost-optimised models (claude-haiku-4-5, gemini-3.1-flash-lite-preview, gpt-5.4-mini)
+  - standard: Balanced models (claude-sonnet-4-6, gemini-3.1-flash-preview, gpt-5.4)
+  - flagship: Top-capability models (claude-opus-4-6, gemini-3.1-pro-preview, gpt-5.4-pro)
 """
 
 from __future__ import annotations
@@ -49,17 +50,22 @@ DATASET_NAME = "kleister-nda"
 TIERS: dict[str, dict[str, Callable[[], BaseChatModel]]] = {
     "lite": {
         "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-flash-lite-preview"),
         "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
     },
     "standard": {
         "claude": lambda: ChatAnthropic(model="claude-sonnet-4-6"),  # type: ignore[call-arg]
-        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-pro"),
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-flash-preview"),
         "gpt": lambda: ChatOpenAI(model="gpt-5.4"),
+    },
+    "flagship": {
+        "claude": lambda: ChatAnthropic(model="claude-opus-4-6"),  # type: ignore[call-arg]
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-3.1-pro-preview"),
+        "gpt": lambda: ChatOpenAI(model="gpt-5.4-pro"),
     },
 }
 
-SINGLE_PASS_MODALITIES = ("text", "image")
+SINGLE_PASS_MODALITIES = ("text",)
 AGENTIC_MODALITIES = ("multimodal",)
 
 
@@ -87,13 +93,16 @@ def make_target(
         try:
             loader = PDFLoader()
             document = loader.load(tmp_path)
-            result = extractor.extract(document)
-
-            return {
-                **result.model_dump(),
+            meta = {
                 "_page_count": document.page_count,
                 "_char_count": len(document.full_text),
             }
+            try:
+                result = extractor.extract(document)
+                return {**result.model_dump(), **meta}
+            except Exception:
+                logger.exception("Extraction failed")
+                return {"_failed": True, **meta}
         finally:
             tmp_path.unlink(missing_ok=True)
 
@@ -104,16 +113,17 @@ def run_experiment(
     extractor: SinglePassExtractor[NDA] | AgenticExtractor[NDA],
     *,
     model_name: str,
+    tier: str,
     strategy: str,
     modality: str = "n/a",
     splits: list[str],
-    max_concurrency: int = 4,
+    max_concurrency: int = 3,
     limit: int | None = None,
 ) -> None:
     """
     Run a single experiment against the LangSmith dataset.
     """
-    experiment_prefix = f"{model_name}-{strategy}-{modality}"
+    experiment_prefix = f"{model_name}-{tier}-{strategy}-{modality}"
 
     metadata = {
         "model_name": model_name,
@@ -150,7 +160,6 @@ def build_experiment_matrix(
     tier: str,
     model_filter: str | None = None,
     strategy_filter: str | None = None,
-    modality_filter: str | None = None,
 ) -> list[dict[str, str]]:
     """
     Build the list of experiments to run, optionally filtered.
@@ -164,8 +173,6 @@ def build_experiment_matrix(
         # Single-pass: model × modality
         if strategy_filter is None or strategy_filter == "single_pass":
             for modality in SINGLE_PASS_MODALITIES:
-                if modality_filter and modality != modality_filter:
-                    continue
                 experiments.append(
                     {
                         "model_name": model_name,
@@ -177,8 +184,6 @@ def build_experiment_matrix(
         # Agentic: model × modality
         if strategy_filter is None or strategy_filter == "agentic":
             for modality in AGENTIC_MODALITIES:
-                if modality_filter and modality != modality_filter:
-                    continue
                 experiments.append(
                     {
                         "model_name": model_name,
@@ -191,7 +196,7 @@ def build_experiment_matrix(
 
 
 def make_extractor(
-    model_name: str, strategy: str, modality: str, tier: str
+    model_name: str, strategy: str, modality: str, tier: str, max_retries: int = 6
 ) -> SinglePassExtractor[NDA] | AgenticExtractor[NDA]:
     """
     Instantiate the appropriate extractor for an experiment.
@@ -203,12 +208,14 @@ def make_extractor(
             model=model,
             schema=NDA,
             modality=cast(Literal["text", "image", "multimodal"], modality),
+            max_retries=max_retries,
         )
     elif strategy == "agentic":
         return AgenticExtractor(
             model=model,
             schema=NDA,
             modality=cast(Literal["text", "image", "multimodal"], modality),
+            max_retries=max_retries,
         )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
@@ -237,30 +244,30 @@ def parse_args() -> argparse.Namespace:
         help="Run only this strategy. Default: both.",
     )
     parser.add_argument(
-        "--modality",
-        choices=["text", "image", "multimodal"],
-        default=None,
-        help="Run only this modality (single_pass only). Default: both.",
-    )
-    parser.add_argument(
         "--split",
         choices=["train", "dev", "test"],
-        default="train",
-        help="Dataset split to evaluate against. Default: train.",
+        default="dev",
+        help="Dataset split to evaluate against. Default: dev.",
+    )
+    parser.add_argument(
+        "--limit", type=int, default=None, help="Max examples to evaluate."
     )
     parser.add_argument(
         "--max-concurrency",
         type=int,
-        default=4,
-        help="Max concurrent evaluations. Default: 4.",
+        default=3,
+        help="Max concurrent evaluations. Default: 3.",
+    )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=6,
+        help="Max retries for extractor. Default: 6.",
     )
     parser.add_argument(
         "--dry-run",
         action="store_true",
         help="List experiments without executing.",
-    )
-    parser.add_argument(
-        "--limit", type=int, default=None, help="Max examples to evaluate."
     )
     return parser.parse_args()
 
@@ -272,7 +279,6 @@ def main() -> None:
         tier=args.tier,
         model_filter=args.model,
         strategy_filter=args.strategy,
-        modality_filter=args.modality,
     )
 
     if not experiments:
@@ -306,11 +312,16 @@ def main() -> None:
 
         for exp in experiments:
             extractor = make_extractor(
-                exp["model_name"], exp["strategy"], exp["modality"], args.tier
+                exp["model_name"],
+                exp["strategy"],
+                exp["modality"],
+                args.tier,
+                args.max_retries,
             )
             run_experiment(
                 extractor,
                 model_name=exp["model_name"],
+                tier=args.tier,
                 strategy=exp["strategy"],
                 modality=exp["modality"],
                 splits=splits,

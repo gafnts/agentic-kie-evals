@@ -13,6 +13,8 @@ Normalization (lowercasing, whitespace and trailing-period stripping) is
 applied to both sides before comparison.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from difflib import SequenceMatcher
 from typing import Any
@@ -103,6 +105,40 @@ def _set_f1(predicted: set[str], expected: set[str], *, fuzzy: bool) -> float:
     return 2 * precision * recall / (precision + recall)
 
 
+def _make_aggregate_evaluator(
+    key: str,
+    field_configs: list[tuple[str, bool, bool]],
+) -> Callable[..., dict[str, Any]]:
+    """
+    Create a macro-average F1 evaluator across multiple fields.
+
+    *field_configs* is a list of ``(field, fuzzy, is_set_field)`` tuples that
+    define which variant to use for each field.  The score is the unweighted
+    mean of the per-field F1 values.
+    """
+
+    def aggregate_eval(
+        outputs: dict[str, Any], reference_outputs: dict[str, Any]
+    ) -> dict[str, Any]:
+        if not outputs or outputs.get("_failed"):
+            return {"key": key, "score": 0.0}
+        scores = []
+        for field, fuzzy, is_set_field in field_configs:
+            if is_set_field:
+                predicted = _extract_party_names(outputs.get(field))
+                expected = _extract_party_names(reference_outputs.get(field))
+            else:
+                predicted = _scalar_to_set(_normalize_for_eval(outputs.get(field)))
+                expected = _scalar_to_set(
+                    _normalize_for_eval(reference_outputs.get(field))
+                )
+            scores.append(_set_f1(predicted, expected, fuzzy=fuzzy))
+        return {"key": key, "score": sum(scores) / len(scores)}
+
+    aggregate_eval.__name__ = key
+    return aggregate_eval
+
+
 def _make_field_evaluators(
     field: str,
     *,
@@ -134,6 +170,8 @@ def _make_field_evaluators(
     def f1_eval(
         outputs: dict[str, Any], reference_outputs: dict[str, Any]
     ) -> dict[str, Any]:
+        if not outputs or outputs.get("_failed"):
+            return {"key": f"{prefix}_{field}_f1", "score": 0.0}
         predicted, expected = _get_sets(outputs, reference_outputs)
         return {
             "key": f"{prefix}_{field}_f1",
@@ -153,4 +191,22 @@ ALL_EVALUATORS: list[Callable[..., dict[str, Any]]] = [
     *_make_field_evaluators("term", fuzzy=True),
     *_make_field_evaluators("party", fuzzy=False, is_set_field=True),
     *_make_field_evaluators("party", fuzzy=True, is_set_field=True),
+    _make_aggregate_evaluator(
+        "exact_f1",
+        [
+            ("effective_date", False, False),
+            ("jurisdiction", False, False),
+            ("term", False, False),
+            ("party", False, True),
+        ],
+    ),
+    _make_aggregate_evaluator(
+        "fuzzy_f1",
+        [
+            ("effective_date", False, False),
+            ("jurisdiction", True, False),
+            ("term", True, False),
+            ("party", True, True),
+        ],
+    ),
 ]

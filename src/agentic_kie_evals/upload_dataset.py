@@ -7,9 +7,9 @@ one example per document. Each example includes the structured labels
 as outputs and the PDF as an attachment.
 
 Partition-to-split mapping:
-    train → train
-    dev-0 → dev
-    test-A → test
+    train: train
+    dev-0: dev
+    test-A: test
 
 The script is idempotent: it reuses an existing dataset and derives
 deterministic example IDs from filenames, so re-running it will not
@@ -129,12 +129,7 @@ def get_or_create_dataset(
     try:
         dataset = client.create_dataset(
             dataset_name=dataset_name,
-            description=(
-                "Kleister NDA dataset (Applica AI). "
-                "254 train / 83 dev / 203 test NDA documents "
-                "from SEC Edgar. Four entity types: "
-                "effective_date, jurisdiction, party, term."
-            ),
+            description="Kleister NDA dataset for KIE evaluation",
         )
         logger.info("Created dataset: %s (%s)", dataset_name, dataset.id)
         return dataset.id
