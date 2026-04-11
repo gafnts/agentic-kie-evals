@@ -191,7 +191,7 @@ def build_experiment_matrix(
 
 
 def make_extractor(
-    model_name: str, strategy: str, modality: str, tier: str
+    model_name: str, strategy: str, modality: str, tier: str, max_retries: int = 5
 ) -> SinglePassExtractor[NDA] | AgenticExtractor[NDA]:
     """
     Instantiate the appropriate extractor for an experiment.
@@ -203,12 +203,14 @@ def make_extractor(
             model=model,
             schema=NDA,
             modality=cast(Literal["text", "image", "multimodal"], modality),
+            max_retries=max_retries,
         )
     elif strategy == "agentic":
         return AgenticExtractor(
             model=model,
             schema=NDA,
             modality=cast(Literal["text", "image", "multimodal"], modality),
+            max_retries=max_retries,
         )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
@@ -262,6 +264,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--limit", type=int, default=None, help="Max examples to evaluate."
     )
+    parser.add_argument(
+        "--max-retries",
+        type=int,
+        default=5,
+        help="Max retries for extractor. Default: 5.",
+    )
     return parser.parse_args()
 
 
@@ -306,7 +314,11 @@ def main() -> None:
 
         for exp in experiments:
             extractor = make_extractor(
-                exp["model_name"], exp["strategy"], exp["modality"], args.tier
+                exp["model_name"],
+                exp["strategy"],
+                exp["modality"],
+                args.tier,
+                args.max_retries,
             )
             run_experiment(
                 extractor,
