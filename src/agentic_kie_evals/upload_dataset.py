@@ -129,7 +129,7 @@ def get_or_create_dataset(
     try:
         dataset = client.create_dataset(
             dataset_name=dataset_name,
-            description="Kleister NDA dataset (Applica AI).",
+            description="Kleister NDA dataset for KIE evaluation",
         )
         logger.info("Created dataset: %s (%s)", dataset_name, dataset.id)
         return dataset.id
