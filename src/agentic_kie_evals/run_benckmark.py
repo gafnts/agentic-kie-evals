@@ -113,7 +113,7 @@ def run_experiment(
     """
     Run a single experiment against the LangSmith dataset.
     """
-    experiment_prefix = f"{model_name}--{strategy}--{modality}"
+    experiment_prefix = f"{model_name}-{strategy}-{modality}"
 
     metadata = {
         "model_name": model_name,
