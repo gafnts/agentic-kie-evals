@@ -4,6 +4,10 @@ Benchmark runner for the Kleister NDA extraction evaluation.
 Runs the experiment matrix (model x strategy x modality) against the
 LangSmith dataset and scores each run with the evaluators defined in
 evaluators.py.
+
+Two model tiers are available via the --tier argument:
+  - lite: Cost-optimised models (claude-haiku-4-5, gemini-2.5-flash, gpt-5.4-mini)
+  - standard: Full-capability models (claude-sonnet-4-6, gemini-2.5-pro, gpt-5.4)
 """
 
 from __future__ import annotations
@@ -42,10 +46,17 @@ logger = logging.getLogger(__name__)
 
 DATASET_NAME = "kleister-nda"
 
-MODELS: dict[str, Callable[[], BaseChatModel]] = {
-    "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
-    "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
-    "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
+TIERS: dict[str, dict[str, Callable[[], BaseChatModel]]] = {
+    "lite": {
+        "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
+        "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
+    },
+    "standard": {
+        "claude": lambda: ChatAnthropic(model="claude-sonnet-4-6"),  # type: ignore[call-arg]
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-pro"),
+        "gpt": lambda: ChatOpenAI(model="gpt-5.4"),
+    },
 }
 
 SINGLE_PASS_MODALITIES = ("text", "image")
@@ -136,6 +147,7 @@ def run_experiment(
 
 
 def build_experiment_matrix(
+    tier: str,
     model_filter: str | None = None,
     strategy_filter: str | None = None,
     modality_filter: str | None = None,
@@ -145,7 +157,7 @@ def build_experiment_matrix(
     """
     experiments: list[dict[str, str]] = []
 
-    for model_name in MODELS:
+    for model_name in TIERS[tier]:
         if model_filter and model_name != model_filter:
             continue
 
@@ -179,12 +191,12 @@ def build_experiment_matrix(
 
 
 def make_extractor(
-    model_name: str, strategy: str, modality: str
+    model_name: str, strategy: str, modality: str, tier: str
 ) -> SinglePassExtractor[NDA] | AgenticExtractor[NDA]:
     """
     Instantiate the appropriate extractor for an experiment.
     """
-    model = MODELS[model_name]()
+    model = TIERS[tier][model_name]()
 
     if strategy == "single_pass":
         return SinglePassExtractor(
@@ -207,8 +219,14 @@ def parse_args() -> argparse.Namespace:
         description="Run Kleister NDA extraction benchmark experiments.",
     )
     parser.add_argument(
+        "--tier",
+        choices=list(TIERS.keys()),
+        default="lite",
+        help="Model tier to use. Default: lite.",
+    )
+    parser.add_argument(
         "--model",
-        choices=list(MODELS.keys()),
+        choices=list(TIERS["lite"].keys()),
         default=None,
         help="Run only this model. Default: all models.",
     )
@@ -251,6 +269,7 @@ def main() -> None:
     args = parse_args()
 
     experiments = build_experiment_matrix(
+        tier=args.tier,
         model_filter=args.model,
         strategy_filter=args.strategy,
         modality_filter=args.modality,
@@ -260,7 +279,9 @@ def main() -> None:
         logger.warning("No experiments match the provided filters.")
         return
 
-    logger.info("Experiment matrix: %d experiment(s)", len(experiments))
+    logger.info(
+        "Tier: %s | Experiment matrix: %d experiment(s)", args.tier, len(experiments)
+    )
     for i, exp in enumerate(experiments, 1):
         logger.info(
             "  [%d] %s / %s / %s",
@@ -285,7 +306,7 @@ def main() -> None:
 
         for exp in experiments:
             extractor = make_extractor(
-                exp["model_name"], exp["strategy"], exp["modality"]
+                exp["model_name"], exp["strategy"], exp["modality"], args.tier
             )
             run_experiment(
                 extractor,

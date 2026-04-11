@@ -47,27 +47,35 @@ uv run python -m agentic_kie_evals.upload_dataset --recreate
 
 The benchmark runner evaluates the full experiment matrix (`model × strategy × modality`) against the LangSmith dataset. Each run is scored by the evaluators and logged back to LangSmith under the prefix `{model}--{strategy}--{modality}`.
 
+1. Dry run (print the experiment matrix without making any API calls)
 ```bash
-# Dry run — see what would execute without making API calls
 uv run python -m agentic_kie_evals.run_benckmark --dry-run
+```
 
-# Single quick test (one model / strategy / modality, 10 examples)
+2. Single quick test (one model / strategy / modality, 10 examples)
+```bash
 uv run python -m agentic_kie_evals.run_benckmark \
-    --model claude-haiku --strategy single_pass --modality text \
-    --max-concurrency 1 --limit 10
+    --tier lite --model gemini --strategy single_pass \
+    --modality text --limit 10
+```
 
-# Full matrix on the train split (default)
+3. Full matrix, lite tier (cost-optimised models) on the train split
+```bash
 uv run python -m agentic_kie_evals.run_benckmark
+```
 
-# Final benchmark on the dev split
-uv run python -m agentic_kie_evals.run_benckmark --split dev
+4. Full matrix, standard tier (full-capability models) on the dev split
+```bash
+uv run python -m agentic_kie_evals.run_benckmark \
+    --tier standard --split dev
 ```
 
 ### CLI reference
 
 | Flag | Choices | Default | Description |
 |---|---|---|---|
-| `--model` | `claude-haiku`, `gemini-flash`, `gpt` | all | Restrict to a single model |
+| `--tier` | `lite`, `standard` | `lite` | Model tier: cost-optimised or full-capability |
+| `--model` | `claude`, `gemini`, `gpt` | all | Restrict to a single model |
 | `--strategy` | `single_pass`, `agentic` | both | Restrict to a single extraction strategy |
 | `--modality` | `text`, `multimodal` | both | Restrict to a single modality (single-pass only) |
 | `--split` | `train`, `dev`, `test` | `train` | Dataset split to evaluate against |
