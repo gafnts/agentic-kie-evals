@@ -120,6 +120,8 @@ def _make_aggregate_evaluator(
     def aggregate_eval(
         outputs: dict[str, Any], reference_outputs: dict[str, Any]
     ) -> dict[str, Any]:
+        if not outputs:
+            return {"key": key, "score": 0.0}
         scores = []
         for field, fuzzy, is_set_field in field_configs:
             if is_set_field:
@@ -168,6 +170,8 @@ def _make_field_evaluators(
     def f1_eval(
         outputs: dict[str, Any], reference_outputs: dict[str, Any]
     ) -> dict[str, Any]:
+        if not outputs:
+            return {"key": f"{prefix}_{field}_f1", "score": 0.0}
         predicted, expected = _get_sets(outputs, reference_outputs)
         return {
             "key": f"{prefix}_{field}_f1",
