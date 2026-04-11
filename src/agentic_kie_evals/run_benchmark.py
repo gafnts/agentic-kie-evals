@@ -104,16 +104,17 @@ def run_experiment(
     extractor: SinglePassExtractor[NDA] | AgenticExtractor[NDA],
     *,
     model_name: str,
+    tier: str,
     strategy: str,
     modality: str = "n/a",
     splits: list[str],
-    max_concurrency: int = 4,
+    max_concurrency: int = 3,
     limit: int | None = None,
 ) -> None:
     """
     Run a single experiment against the LangSmith dataset.
     """
-    experiment_prefix = f"{model_name}-{strategy}-{modality}"
+    experiment_prefix = f"{model_name}-{tier}-{strategy}-{modality}"
 
     metadata = {
         "model_name": model_name,
@@ -191,7 +192,7 @@ def build_experiment_matrix(
 
 
 def make_extractor(
-    model_name: str, strategy: str, modality: str, tier: str, max_retries: int = 5
+    model_name: str, strategy: str, modality: str, tier: str, max_retries: int = 6
 ) -> SinglePassExtractor[NDA] | AgenticExtractor[NDA]:
     """
     Instantiate the appropriate extractor for an experiment.
@@ -253,8 +254,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-concurrency",
         type=int,
-        default=4,
-        help="Max concurrent evaluations. Default: 4.",
+        default=3,
+        help="Max concurrent evaluations. Default: 3.",
     )
     parser.add_argument(
         "--dry-run",
@@ -267,8 +268,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-retries",
         type=int,
-        default=5,
-        help="Max retries for extractor. Default: 5.",
+        default=6,
+        help="Max retries for extractor. Default: 6.",
     )
     return parser.parse_args()
 
@@ -323,6 +324,7 @@ def main() -> None:
             run_experiment(
                 extractor,
                 model_name=exp["model_name"],
+                tier=args.tier,
                 strategy=exp["strategy"],
                 modality=exp["modality"],
                 splits=splits,
