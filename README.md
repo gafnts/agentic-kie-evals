@@ -49,24 +49,24 @@ The benchmark runner evaluates the full experiment matrix (`model × strategy ×
 
 1. Dry run (print the experiment matrix without making any API calls)
 ```bash
-uv run python -m agentic_kie_evals.run_benckmark --dry-run
+uv run python -m agentic_kie_evals.run_benchmark --dry-run
 ```
 
 2. Single quick test (one model / strategy / modality, 10 examples)
 ```bash
-uv run python -m agentic_kie_evals.run_benckmark \
+uv run python -m agentic_kie_evals.run_benchmark \
     --tier lite --model gemini --strategy single_pass \
     --modality text --limit 10
 ```
 
 3. Full matrix, lite tier (cost-optimised models) on the train split
 ```bash
-uv run python -m agentic_kie_evals.run_benckmark
+uv run python -m agentic_kie_evals.run_benchmark
 ```
 
 4. Full matrix, standard tier (full-capability models) on the dev split
 ```bash
-uv run python -m agentic_kie_evals.run_benckmark \
+uv run python -m agentic_kie_evals.run_benchmark \
     --tier standard --split dev
 ```
 
