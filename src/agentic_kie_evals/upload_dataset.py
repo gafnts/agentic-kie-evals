@@ -1,8 +1,25 @@
-"""One-time script to upload the Kleister NDA dataset to LangSmith."""
+"""
+Uploads the Kleister NDA dataset to LangSmith.
+
+Reads the preprocessed Parquet files and PDF documents produced by the
+kleister-nda-preparation package and creates a LangSmith dataset with
+one example per document. Each example includes the structured labels
+as outputs and the PDF as an attachment.
+
+Partition-to-split mapping:
+    train → train
+    dev-0 → dev
+    test-A → test
+
+The script is idempotent: it reuses an existing dataset and derives
+deterministic example IDs from filenames, so re-running it will not
+create duplicates.
+"""
 
 from __future__ import annotations
 
 import argparse
+import logging
 import uuid
 from pathlib import Path
 from typing import Any
@@ -11,6 +28,18 @@ from uuid import UUID
 import polars as pl
 from dotenv import load_dotenv
 from langsmith import Client
+from rich.logging import RichHandler
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn
+
+load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[RichHandler(rich_tracebacks=True, show_path=False)],
+)
+logger = logging.getLogger(__name__)
+
 
 STATIC_DIR = Path(__file__).parents[2] / "data" / "kleister-nda"
 
@@ -20,14 +49,15 @@ PARTITIONS: dict[str, str] = {
     "test-A": "test",
 }
 
-NAMESPACE_UUID = uuid.UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
-
+NAMESPACE_UUID = UUID("fcd0fe34-475f-4e1a-819a-85dde6f2fa71")
 DEFAULT_DATASET_NAME = "kleister-nda"
 DEFAULT_BATCH_SIZE = 20
 
 
 def read_partition(partition_dir: str, split_name: str) -> list[dict[str, Any]]:
-    """Read a partition's parquet and build LangSmith example dicts."""
+    """
+    Read a partition's parquet and build LangSmith example dicts.
+    """
     partition_path = STATIC_DIR / partition_dir
     parquet_path = partition_path / "data.parquet"
     documents_path = partition_path / "documents"
@@ -40,7 +70,7 @@ def read_partition(partition_dir: str, split_name: str) -> list[dict[str, Any]]:
         pdf_path = documents_path / filename
 
         if not pdf_path.exists():
-            print(f"  WARNING: PDF not found for {filename}, skipping")
+            logger.warning("PDF not found for %s, skipping", filename)
             continue
 
         if "labels_schema" in row:
@@ -86,16 +116,18 @@ def get_or_create_dataset(
     *,
     recreate: bool = False,
 ) -> UUID:
-    """Return dataset ID, creating the dataset if needed."""
+    """
+    Return dataset ID, creating the dataset if needed.
+    """
     if recreate:
         try:
             client.delete_dataset(dataset_name=dataset_name)
-            print(f"Deleted existing dataset: {dataset_name}")
+            logger.info("Deleted existing dataset: %s", dataset_name)
         except Exception:
             pass
 
     try:
-        dataset = client.create_dataset(  # pyright: ignore[reportUnknownMemberType]
+        dataset = client.create_dataset(
             dataset_name=dataset_name,
             description=(
                 "Kleister NDA dataset (Applica AI). "
@@ -104,11 +136,11 @@ def get_or_create_dataset(
                 "effective_date, jurisdiction, party, term."
             ),
         )
-        print(f"Created dataset: {dataset_name} ({dataset.id})")
+        logger.info("Created dataset: %s (%s)", dataset_name, dataset.id)
         return dataset.id
     except Exception:
         dataset = client.read_dataset(dataset_name=dataset_name)
-        print(f"Using existing dataset: {dataset_name} ({dataset.id})")
+        logger.info("Using existing dataset: %s (%s)", dataset_name, dataset.id)
         return UUID(str(dataset.id))
 
 
@@ -119,31 +151,37 @@ def upload_partition(
     batch_size: int = DEFAULT_BATCH_SIZE,
     dry_run: bool = False,
 ) -> None:
-    """Upload examples in batches to LangSmith."""
+    """
+    Upload examples in batches to LangSmith.
+    """
     total = len(examples)
+    total_batches = (total + batch_size - 1) // batch_size
 
-    for i in range(0, total, batch_size):
-        batch = examples[i : i + batch_size]
-        batch_num = i // batch_size + 1
-        total_batches = (total + batch_size - 1) // batch_size
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        transient=True,
+    ) as progress:
+        task = progress.add_task("Uploading batches", total=total_batches)
 
-        if dry_run:
-            print(
-                f"  [DRY RUN] Batch {batch_num}/{total_batches}: {len(batch)} examples"
-            )
-            continue
+        for i in range(0, total, batch_size):
+            batch = examples[i : i + batch_size]
 
-        client.create_examples(  # pyright: ignore[reportUnknownMemberType]
-            dataset_id=dataset_id,
-            examples=batch,
-            dangerously_allow_filesystem=True,
-        )
-        print(f"  Uploaded batch {batch_num}/{total_batches}: {len(batch)} examples")
+            if not dry_run:
+                client.create_examples(
+                    dataset_id=dataset_id,
+                    examples=batch,
+                    dangerously_allow_filesystem=True,
+                )
+
+            progress.advance(task)
+
+    verb = "[DRY RUN] Would upload" if dry_run else "Uploaded"
+    logger.info("%s %d examples in %d batches", verb, total, total_batches)
 
 
-def main() -> None:
-    load_dotenv()
-
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Upload Kleister NDA dataset to LangSmith"
     )
@@ -175,13 +213,16 @@ def main() -> None:
         action="store_true",
         help="Validate without uploading",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def main() -> None:
+    args = parse_args()
     client = Client()
-
     dataset_id: UUID | str
+
     if args.dry_run:
-        print(f"[DRY RUN] Would create dataset: {args.dataset_name}")
+        logger.info("Dry run mode. Would create dataset: %s", args.dataset_name)
         dataset_id = "dry-run"
     else:
         dataset_id = get_or_create_dataset(
@@ -190,10 +231,10 @@ def main() -> None:
 
     for partition_dir in args.partitions:
         split_name = PARTITIONS[partition_dir]
-        print(f"\nProcessing partition: {partition_dir} → split: {split_name}")
+        logger.info("Processing partition: %s → split: %s", partition_dir, split_name)
 
         examples = read_partition(partition_dir, split_name)
-        print(f"  Found {len(examples)} examples")
+        logger.info("Found %d examples", len(examples))
 
         upload_partition(
             client=client,
@@ -203,7 +244,7 @@ def main() -> None:
             dry_run=args.dry_run,
         )
 
-    print("\nDone.")
+    logger.info("Done.")
 
 
 if __name__ == "__main__":

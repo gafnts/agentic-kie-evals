@@ -4,7 +4,13 @@ Benchmark runner for the Kleister NDA extraction evaluation.
 Runs the experiment matrix (model x strategy x modality) against the
 LangSmith dataset and scores each run with the evaluators defined in
 evaluators.py.
+
+Two model tiers are available via the --tier argument:
+  - lite: Cost-optimised models (claude-haiku-4-5, gemini-2.5-flash, gpt-5.4-mini)
+  - standard: Full-capability models (claude-sonnet-4-6, gemini-2.5-pro, gpt-5.4)
 """
+
+from __future__ import annotations
 
 import argparse
 import logging
@@ -14,8 +20,7 @@ from itertools import islice
 from pathlib import Path
 from typing import Any, Literal, cast
 
-from agentic_kie.extractors.agent import AgenticExtractor
-from agentic_kie.extractors.single_pass import SinglePassExtractor
+from agentic_kie.extractors import AgenticExtractor, SinglePassExtractor
 from agentic_kie.loader import PDFLoader
 from dotenv import load_dotenv
 from langchain_anthropic import ChatAnthropic
@@ -24,24 +29,38 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langsmith import Client, evaluate
 from nda import NDA
+from rich.logging import RichHandler
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TextColumn
 
 from .evaluators import ALL_EVALUATORS
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    handlers=[RichHandler(rich_tracebacks=True, show_path=False)],
+)
 logger = logging.getLogger(__name__)
 
 
 DATASET_NAME = "kleister-nda"
 
-MODELS: dict[str, Callable[[], BaseChatModel]] = {
-    "claude-haiku": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
-    "gemini-flash": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
-    "gpt": lambda: ChatOpenAI(model="gpt-4.1-mini"),
+TIERS: dict[str, dict[str, Callable[[], BaseChatModel]]] = {
+    "lite": {
+        "claude": lambda: ChatAnthropic(model="claude-haiku-4-5"),  # type: ignore[call-arg]
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-flash"),
+        "gpt": lambda: ChatOpenAI(model="gpt-5.4-mini"),
+    },
+    "standard": {
+        "claude": lambda: ChatAnthropic(model="claude-sonnet-4-6"),  # type: ignore[call-arg]
+        "gemini": lambda: ChatGoogleGenerativeAI(model="gemini-2.5-pro"),
+        "gpt": lambda: ChatOpenAI(model="gpt-5.4"),
+    },
 }
 
-SINGLE_PASS_MODALITIES = ("text", "multimodal")
+SINGLE_PASS_MODALITIES = ("text", "image")
+AGENTIC_MODALITIES = ("multimodal",)
 
 
 def make_target(
@@ -50,7 +69,7 @@ def make_target(
     """
     Create a LangSmith target function that captures the extractor.
 
-    The target receives (inputs, attachments) as positional args — this
+    The target receives (inputs, attachments) as positional args. This
     is a LangSmith requirement for attachment-based evaluation. It reads
     the PDF bytes from the attachment, writes them to a temp file (since
     PDFLoader accepts a Path), runs extraction, and returns the result
@@ -58,7 +77,6 @@ def make_target(
     """
 
     def target(inputs: dict[str, Any], attachments: dict[str, Any]) -> dict[str, Any]:
-        print(f"attachment keys: {list(attachments.keys())}")
         pdf_bytes = attachments["document"]["reader"].read()
 
         # PDFLoader requires a file path, so write bytes to a temp file
@@ -95,7 +113,7 @@ def run_experiment(
     """
     Run a single experiment against the LangSmith dataset.
     """
-    experiment_prefix = f"{model_name}--{strategy}--{modality}"
+    experiment_prefix = f"{model_name}-{strategy}-{modality}"
 
     metadata = {
         "model_name": model_name,
@@ -129,6 +147,7 @@ def run_experiment(
 
 
 def build_experiment_matrix(
+    tier: str,
     model_filter: str | None = None,
     strategy_filter: str | None = None,
     modality_filter: str | None = None,
@@ -138,7 +157,7 @@ def build_experiment_matrix(
     """
     experiments: list[dict[str, str]] = []
 
-    for model_name in MODELS:
+    for model_name in TIERS[tier]:
         if model_filter and model_name != model_filter:
             continue
 
@@ -155,28 +174,29 @@ def build_experiment_matrix(
                     }
                 )
 
-        # Agentic: model only (no modality param)
-        if (
-            strategy_filter is None or strategy_filter == "agentic"
-        ) and modality_filter is None:
-            experiments.append(
-                {
-                    "model_name": model_name,
-                    "strategy": "agentic",
-                    "modality": "n/a",
-                }
-            )
+        # Agentic: model × modality
+        if strategy_filter is None or strategy_filter == "agentic":
+            for modality in AGENTIC_MODALITIES:
+                if modality_filter and modality != modality_filter:
+                    continue
+                experiments.append(
+                    {
+                        "model_name": model_name,
+                        "strategy": "agentic",
+                        "modality": modality,
+                    }
+                )
 
     return experiments
 
 
 def make_extractor(
-    model_name: str, strategy: str, modality: str
+    model_name: str, strategy: str, modality: str, tier: str
 ) -> SinglePassExtractor[NDA] | AgenticExtractor[NDA]:
     """
     Instantiate the appropriate extractor for an experiment.
     """
-    model = MODELS[model_name]()
+    model = TIERS[tier][model_name]()
 
     if strategy == "single_pass":
         return SinglePassExtractor(
@@ -185,7 +205,11 @@ def make_extractor(
             modality=cast(Literal["text", "image", "multimodal"], modality),
         )
     elif strategy == "agentic":
-        return AgenticExtractor(model=model, schema=NDA)
+        return AgenticExtractor(
+            model=model,
+            schema=NDA,
+            modality=cast(Literal["text", "image", "multimodal"], modality),
+        )
     else:
         raise ValueError(f"Unknown strategy: {strategy}")
 
@@ -195,8 +219,14 @@ def parse_args() -> argparse.Namespace:
         description="Run Kleister NDA extraction benchmark experiments.",
     )
     parser.add_argument(
+        "--tier",
+        choices=list(TIERS.keys()),
+        default="lite",
+        help="Model tier to use. Default: lite.",
+    )
+    parser.add_argument(
         "--model",
-        choices=list(MODELS.keys()),
+        choices=list(TIERS["lite"].keys()),
         default=None,
         help="Run only this model. Default: all models.",
     )
@@ -208,7 +238,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--modality",
-        choices=["text", "multimodal"],
+        choices=["text", "image", "multimodal"],
         default=None,
         help="Run only this modality (single_pass only). Default: both.",
     )
@@ -239,6 +269,7 @@ def main() -> None:
     args = parse_args()
 
     experiments = build_experiment_matrix(
+        tier=args.tier,
         model_filter=args.model,
         strategy_filter=args.strategy,
         modality_filter=args.modality,
@@ -248,7 +279,9 @@ def main() -> None:
         logger.warning("No experiments match the provided filters.")
         return
 
-    logger.info("Experiment matrix: %d experiment(s)", len(experiments))
+    logger.info(
+        "Tier: %s | Experiment matrix: %d experiment(s)", args.tier, len(experiments)
+    )
     for i, exp in enumerate(experiments, 1):
         logger.info(
             "  [%d] %s / %s / %s",
@@ -259,22 +292,32 @@ def main() -> None:
         )
 
     if args.dry_run:
-        logger.info("Dry run — exiting without executing.")
+        logger.info("Dry run: Exiting without executing.")
         return
 
     splits = [args.split]
 
-    for exp in experiments:
-        extractor = make_extractor(exp["model_name"], exp["strategy"], exp["modality"])
-        run_experiment(
-            extractor,
-            model_name=exp["model_name"],
-            strategy=exp["strategy"],
-            modality=exp["modality"],
-            splits=splits,
-            max_concurrency=args.max_concurrency,
-            limit=args.limit,
-        )
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+    ) as progress:
+        task = progress.add_task("Running experiments", total=len(experiments))
+
+        for exp in experiments:
+            extractor = make_extractor(
+                exp["model_name"], exp["strategy"], exp["modality"], args.tier
+            )
+            run_experiment(
+                extractor,
+                model_name=exp["model_name"],
+                strategy=exp["strategy"],
+                modality=exp["modality"],
+                splits=splits,
+                max_concurrency=args.max_concurrency,
+                limit=args.limit,
+            )
+            progress.advance(task)
 
     logger.info("All experiments complete.")
 
