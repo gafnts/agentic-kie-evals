@@ -160,7 +160,6 @@ def build_experiment_matrix(
     tier: str,
     model_filter: str | None = None,
     strategy_filter: str | None = None,
-    modality_filter: str | None = None,
 ) -> list[dict[str, str]]:
     """
     Build the list of experiments to run, optionally filtered.
@@ -174,8 +173,6 @@ def build_experiment_matrix(
         # Single-pass: model × modality
         if strategy_filter is None or strategy_filter == "single_pass":
             for modality in SINGLE_PASS_MODALITIES:
-                if modality_filter and modality != modality_filter:
-                    continue
                 experiments.append(
                     {
                         "model_name": model_name,
@@ -187,8 +184,6 @@ def build_experiment_matrix(
         # Agentic: model × modality
         if strategy_filter is None or strategy_filter == "agentic":
             for modality in AGENTIC_MODALITIES:
-                if modality_filter and modality != modality_filter:
-                    continue
                 experiments.append(
                     {
                         "model_name": model_name,
@@ -249,16 +244,10 @@ def parse_args() -> argparse.Namespace:
         help="Run only this strategy. Default: both.",
     )
     parser.add_argument(
-        "--modality",
-        choices=["text", "image", "multimodal"],
-        default=None,
-        help="Run only this modality (single_pass only). Default: both.",
-    )
-    parser.add_argument(
         "--split",
         choices=["train", "dev", "test"],
-        default="train",
-        help="Dataset split to evaluate against. Default: train.",
+        default="dev",
+        help="Dataset split to evaluate against. Default: dev.",
     )
     parser.add_argument(
         "--limit", type=int, default=None, help="Max examples to evaluate."
@@ -290,7 +279,6 @@ def main() -> None:
         tier=args.tier,
         model_filter=args.model,
         strategy_filter=args.strategy,
-        modality_filter=args.modality,
     )
 
     if not experiments:

@@ -52,11 +52,10 @@ The benchmark runner evaluates the full experiment matrix (`model × strategy ×
 uv run python -m agentic_kie_evals.run_benchmark --dry-run
 ```
 
-2. Single quick test (one model / strategy / modality, 10 examples)
+2. Single quick test (one model / strategy, 10 examples)
 ```bash
 uv run python -m agentic_kie_evals.run_benchmark \
-    --tier lite --model gemini --strategy single_pass \
-    --modality text --limit 10
+    --tier lite --model gemini --strategy single_pass --limit 10
 ```
 
 3. Full matrix, lite tier (cost-optimised models) on the train split
@@ -77,14 +76,13 @@ uv run python -m agentic_kie_evals.run_benchmark \
 | `--tier` | `lite`, `standard`, `flagship` | `lite` | Model tier: cost-optimised, full-capability, or top-capability |
 | `--model` | `claude`, `gemini`, `gpt` | all | Restrict to a single model |
 | `--strategy` | `single_pass`, `agentic` | both | Restrict to a single extraction strategy |
-| `--modality` | `text`, `image`, `multimodal` | both | Restrict to a single modality (single-pass only) |
-| `--split` | `train`, `dev`, `test` | `train` | Dataset split to evaluate against |
+| `--split` | `train`, `dev`, `test` | `dev` | Dataset split to evaluate against |
 | `--limit` | int | none | Cap the number of examples evaluated |
 | `--max-concurrency` | int | `3` | Max concurrent evaluations |
 | `--max-retries` | int | `6` | Max retries per extractor call |
 | `--dry-run` | — | false | Print the experiment matrix and exit |
 
-The `agentic` strategy does not accept a modality parameter and is always run without it.
+Modalities are configured via `SINGLE_PASS_MODALITIES` and `AGENTIC_MODALITIES` in `run_benchmark.py`.
 
 ## Evaluators
 
