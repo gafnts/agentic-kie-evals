@@ -93,13 +93,16 @@ def make_target(
         try:
             loader = PDFLoader()
             document = loader.load(tmp_path)
-            result = extractor.extract(document)
-
-            return {
-                **result.model_dump(),
+            meta = {
                 "_page_count": document.page_count,
                 "_char_count": len(document.full_text),
             }
+            try:
+                result = extractor.extract(document)
+                return {**result.model_dump(), **meta}
+            except Exception:
+                logger.exception("Extraction failed")
+                return {"_failed": True, **meta}
         finally:
             tmp_path.unlink(missing_ok=True)
 
@@ -258,24 +261,24 @@ def parse_args() -> argparse.Namespace:
         help="Dataset split to evaluate against. Default: train.",
     )
     parser.add_argument(
+        "--limit", type=int, default=None, help="Max examples to evaluate."
+    )
+    parser.add_argument(
         "--max-concurrency",
         type=int,
         default=3,
         help="Max concurrent evaluations. Default: 3.",
     )
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="List experiments without executing.",
-    )
-    parser.add_argument(
-        "--limit", type=int, default=None, help="Max examples to evaluate."
-    )
-    parser.add_argument(
         "--max-retries",
         type=int,
         default=6,
         help="Max retries for extractor. Default: 6.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="List experiments without executing.",
     )
     return parser.parse_args()
 

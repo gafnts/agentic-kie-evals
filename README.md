@@ -74,13 +74,14 @@ uv run python -m agentic_kie_evals.run_benchmark \
 
 | Flag | Choices | Default | Description |
 |---|---|---|---|
-| `--tier` | `lite`, `standard` | `lite` | Model tier: cost-optimised or full-capability |
+| `--tier` | `lite`, `standard`, `flagship` | `lite` | Model tier: cost-optimised, full-capability, or top-capability |
 | `--model` | `claude`, `gemini`, `gpt` | all | Restrict to a single model |
 | `--strategy` | `single_pass`, `agentic` | both | Restrict to a single extraction strategy |
-| `--modality` | `text`, `multimodal` | both | Restrict to a single modality (single-pass only) |
+| `--modality` | `text`, `image`, `multimodal` | both | Restrict to a single modality (single-pass only) |
 | `--split` | `train`, `dev`, `test` | `train` | Dataset split to evaluate against |
-| `--max-concurrency` | int | `4` | Max concurrent evaluations |
 | `--limit` | int | none | Cap the number of examples evaluated |
+| `--max-concurrency` | int | `3` | Max concurrent evaluations |
+| `--max-retries` | int | `6` | Max retries per extractor call |
 | `--dry-run` | — | false | Print the experiment matrix and exit |
 
 The `agentic` strategy does not accept a modality parameter and is always run without it.
