@@ -1,14 +1,16 @@
 """
 Evaluators for the Kleister NDA extraction benchmark.
 
-Each evaluator follows the LangSmith custom evaluator signature:
+Each public evaluator follows the LangSmith custom evaluator signature:
     def evaluator(outputs: dict, reference_outputs: dict) -> dict
 
-Returns {"key": str, "score": float} where score is 0.0 or 1.0 for
-scalar fields, and a continuous F1 score for the party list field.
+Returns {"key": str, "score": float} where score is a continuous value
+in [0.0, 1.0].  Every entity field is scored using set-based precision,
+recall, and F1: scalar fields are treated as sets of size 0 or 1, while
+the party list field is a variable-size set.
 
-Normalization is applied to both sides before comparison to handle
-casing differences, trailing periods, and whitespace.
+Normalization (lowercasing, whitespace and trailing-period stripping) is
+applied to both sides before comparison.
 """
 
 from collections.abc import Callable
@@ -31,6 +33,15 @@ def _normalize_for_eval(value: str | None) -> str | None:
     return value.lower().strip().rstrip(".")
 
 
+def _scalar_to_set(value: str | None) -> set[str]:
+    """
+    Convert a normalized scalar value to a singleton set (or empty).
+    """
+    if value is None:
+        return set()
+    return {value}
+
+
 def _extract_party_names(party_field: list[dict[str, Any]] | None) -> set[str]:
     """
     Extract and normalize party name strings from the party field.
@@ -50,28 +61,9 @@ def _extract_party_names(party_field: list[dict[str, Any]] | None) -> set[str]:
     return normalized
 
 
-def _score_none_aware(
-    predicted: str | None,
-    expected: str | None,
-    compare_fn: Callable[[str, str], float],
-) -> float:
-    """
-    Score two scalar values with None-awareness.
-
-    Both None → 1.0 (true negative).
-    One None  → 0.0 (miss or hallucination).
-    Both present → delegate to compare_fn(predicted, expected).
-    """
-    if predicted is None and expected is None:
-        return 1.0
-    if predicted is None or expected is None:
-        return 0.0
-    return compare_fn(predicted, expected)
-
-
 def _best_fuzzy_match(candidate: str, reference_set: set[str]) -> bool:
     """
-    Check if candidate fuzzy-matches any element in reference_set.
+    Check if *candidate* fuzzy-matches any element in *reference_set*.
     """
     return any(
         SequenceMatcher(None, candidate, ref).ratio() >= FUZZY_THRESHOLD
@@ -79,138 +71,106 @@ def _best_fuzzy_match(candidate: str, reference_set: set[str]) -> bool:
     )
 
 
-def _set_f1(predicted: set[str], expected: set[str], *, fuzzy: bool) -> float:
+def _set_scores(
+    predicted: set[str], expected: set[str], *, fuzzy: bool
+) -> tuple[float, float, float]:
     """
-    Compute F1 between two sets of strings.
+    Compute precision, recall, and F1 between two sets of strings.
 
-    If fuzzy=True, matching uses SequenceMatcher with FUZZY_THRESHOLD.
-    If fuzzy=False, matching is exact string equality.
+    If *fuzzy* is True, matching uses ``SequenceMatcher`` with
+    ``FUZZY_THRESHOLD``.  If False, matching is exact string equality.
 
     For fuzzy matching, precision and recall are computed independently
     because a fuzzy match is not necessarily symmetric — a predicted name
     might fuzzy-match a different expected name than vice versa.
+
+    Returns ``(precision, recall, f1)``.
     """
     if not predicted and not expected:
-        return 1.0
+        return 1.0, 1.0, 1.0
     if not predicted or not expected:
-        return 0.0
+        return 0.0, 0.0, 0.0
 
     if fuzzy:
         tp_precision = sum(1 for p in predicted if _best_fuzzy_match(p, expected))
         tp_recall = sum(1 for e in expected if _best_fuzzy_match(e, predicted))
     else:
         tp_precision = len(predicted & expected)
-        tp_recall = tp_precision  # symmetric for exact match
+        tp_recall = tp_precision
 
     precision = tp_precision / len(predicted)
     recall = tp_recall / len(expected)
 
     if precision + recall == 0:
-        return 0.0
-    return 2 * precision * recall / (precision + recall)
+        return 0.0, 0.0, 0.0
+
+    f1 = 2 * precision * recall / (precision + recall)
+
+    return precision, recall, f1
 
 
-def exact_effective_date(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
+def _make_field_evaluators(
+    field: str,
+    *,
+    fuzzy: bool,
+    is_set_field: bool = False,
+) -> list[Callable[..., dict[str, Any]]]:
     """
-    Exact match on effective_date after normalization.
+    Create precision, recall, and F1 evaluators for a single entity field.
 
-    Date values are already in YYYY-MM-DD from the schema validator,
-    so string comparison after lowercasing is sufficient.
+    For scalar fields (*is_set_field* = False) the value is promoted to a
+    singleton set so the same set-based logic applies uniformly.
     """
-    predicted = _normalize_for_eval(outputs.get("effective_date"))
-    expected = _normalize_for_eval(reference_outputs.get("effective_date"))
-    score = _score_none_aware(predicted, expected, lambda p, e: float(p == e))
-    return {"key": "exact_effective_date", "score": score}
+    prefix = "fuzzy" if fuzzy else "exact"
 
+    def _get_sets(
+        outputs: dict[str, Any],
+        reference_outputs: dict[str, Any],
+    ) -> tuple[set[str], set[str]]:
+        if is_set_field:
+            return (
+                _extract_party_names(outputs.get(field)),
+                _extract_party_names(reference_outputs.get(field)),
+            )
+        return (
+            _scalar_to_set(_normalize_for_eval(outputs.get(field))),
+            _scalar_to_set(_normalize_for_eval(reference_outputs.get(field))),
+        )
 
-def exact_jurisdiction(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Exact match on jurisdiction after normalization.
-    """
-    predicted = _normalize_for_eval(outputs.get("jurisdiction"))
-    expected = _normalize_for_eval(reference_outputs.get("jurisdiction"))
-    score = _score_none_aware(predicted, expected, lambda p, e: float(p == e))
-    return {"key": "exact_jurisdiction", "score": score}
+    def precision_eval(
+        outputs: dict[str, Any], reference_outputs: dict[str, Any]
+    ) -> dict[str, Any]:
+        predicted, expected = _get_sets(outputs, reference_outputs)
+        p, _, _ = _set_scores(predicted, expected, fuzzy=fuzzy)
+        return {"key": f"{prefix}_{field}_precision", "score": p}
 
+    def recall_eval(
+        outputs: dict[str, Any], reference_outputs: dict[str, Any]
+    ) -> dict[str, Any]:
+        predicted, expected = _get_sets(outputs, reference_outputs)
+        _, r, _ = _set_scores(predicted, expected, fuzzy=fuzzy)
+        return {"key": f"{prefix}_{field}_recall", "score": r}
 
-def fuzzy_jurisdiction(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Fuzzy match on jurisdiction using SequenceMatcher.
-    """
-    predicted = _normalize_for_eval(outputs.get("jurisdiction"))
-    expected = _normalize_for_eval(reference_outputs.get("jurisdiction"))
+    def f1_eval(
+        outputs: dict[str, Any], reference_outputs: dict[str, Any]
+    ) -> dict[str, Any]:
+        predicted, expected = _get_sets(outputs, reference_outputs)
+        _, _, f1 = _set_scores(predicted, expected, fuzzy=fuzzy)
+        return {"key": f"{prefix}_{field}_f1", "score": f1}
 
-    def _fuzzy(p: str, e: str) -> float:
-        return float(SequenceMatcher(None, p, e).ratio() >= FUZZY_THRESHOLD)
+    precision_eval.__name__ = f"{prefix}_{field}_precision"
+    recall_eval.__name__ = f"{prefix}_{field}_recall"
+    f1_eval.__name__ = f"{prefix}_{field}_f1"
 
-    score = _score_none_aware(predicted, expected, _fuzzy)
-    return {"key": "fuzzy_jurisdiction", "score": score}
-
-
-def exact_term(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Exact match on term after normalization.
-    """
-    predicted = _normalize_for_eval(outputs.get("term"))
-    expected = _normalize_for_eval(reference_outputs.get("term"))
-    score = _score_none_aware(predicted, expected, lambda p, e: float(p == e))
-    return {"key": "exact_term", "score": score}
-
-
-def fuzzy_term(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Fuzzy match on term using SequenceMatcher.
-    """
-    predicted = _normalize_for_eval(outputs.get("term"))
-    expected = _normalize_for_eval(reference_outputs.get("term"))
-
-    def _fuzzy(p: str, e: str) -> float:
-        return float(SequenceMatcher(None, p, e).ratio() >= FUZZY_THRESHOLD)
-
-    score = _score_none_aware(predicted, expected, _fuzzy)
-    return {"key": "fuzzy_term", "score": score}
-
-
-def exact_party(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Set F1 over party names with exact matching.
-    """
-    predicted = _extract_party_names(outputs.get("party"))
-    expected = _extract_party_names(reference_outputs.get("party"))
-    score = _set_f1(predicted, expected, fuzzy=False)
-    return {"key": "exact_party", "score": score}
-
-
-def fuzzy_party(
-    outputs: dict[str, Any], reference_outputs: dict[str, Any]
-) -> dict[str, Any]:
-    """
-    Set F1 over party names with fuzzy matching.
-    """
-    predicted = _extract_party_names(outputs.get("party"))
-    expected = _extract_party_names(reference_outputs.get("party"))
-    score = _set_f1(predicted, expected, fuzzy=True)
-    return {"key": "fuzzy_party", "score": score}
+    return [precision_eval, recall_eval, f1_eval]
 
 
 ALL_EVALUATORS: list[Callable[..., dict[str, Any]]] = [
-    exact_effective_date,
-    exact_jurisdiction,
-    fuzzy_jurisdiction,
-    exact_term,
-    fuzzy_term,
-    exact_party,
-    fuzzy_party,
+    *_make_field_evaluators("effective_date", fuzzy=False),
+    *_make_field_evaluators("jurisdiction", fuzzy=False),
+    *_make_field_evaluators("jurisdiction", fuzzy=True),
+    *_make_field_evaluators("term", fuzzy=False),
+    *_make_field_evaluators("term", fuzzy=True),
+    *_make_field_evaluators("party", fuzzy=False, is_set_field=True),
+    *_make_field_evaluators("party", fuzzy=True, is_set_field=True),
 ]
