@@ -31,4 +31,4 @@ coverage.xml
 .DS_Store
 
 # NDA data
-data/
+data/kleister-nda/
