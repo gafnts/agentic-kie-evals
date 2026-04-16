@@ -1,0 +1,286 @@
+{
+  "series": [
+    {
+      "key": "agentic",
+      "label": "Agentic",
+      "color": "primary"
+    },
+    {
+      "key": "single_pass",
+      "label": "Single Pass",
+      "color": "secondary"
+    }
+  ],
+  "tabs": [
+    {
+      "id": "f1",
+      "label": "F1 Score",
+      "chartType": "faceted-bar",
+      "unit": "%",
+      "yDomain": [
+        0,
+        1
+      ],
+      "facet": {
+        "rowKey": "tier",
+        "colKey": "provider"
+      },
+      "xKey": "strategy",
+      "yKey": "value",
+      "data": [
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 0.7455626506024097
+        },
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 0.8719180722891567
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 0.8586204819277109
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 0.8568132530120481
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 0.8400457831325301
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 0.8956698795180722
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 0.9183590361445783
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 0.9153469879518072
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 0.6715156626506024
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 0.8651481927710843
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 0.8953674698795181
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 0.8988831325301204
+        }
+      ]
+    },
+    {
+      "id": "latency",
+      "label": "Latency",
+      "chartType": "faceted-bar",
+      "unit": "s",
+      "yDomain": [
+        0,
+        65
+      ],
+      "facet": {
+        "rowKey": "tier",
+        "colKey": "provider"
+      },
+      "xKey": "strategy",
+      "yKey": "value",
+      "data": [
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 31.012886297271912
+        },
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 16.89137097151883
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 64.62766697895096
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 33.33910058492638
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 5.554534731141056
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 1.4136856923620384
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 14.567474212991186
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 9.789317372333572
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 11.358013808009137
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 2.5767956411982156
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 8.452288231217718
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 2.06875184932387
+        }
+      ]
+    },
+    {
+      "id": "cost",
+      "label": "Cost",
+      "chartType": "faceted-bar",
+      "unit": "$",
+      "yDomain": [
+        0,
+        0.038
+      ],
+      "facet": {
+        "rowKey": "tier",
+        "colKey": "provider"
+      },
+      "xKey": "strategy",
+      "yKey": "value",
+      "data": [
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 0.01060120481927711
+        },
+        {
+          "tier": "lite",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 0.006078578313253012
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "agentic",
+          "value": 0.037789987951807234
+        },
+        {
+          "tier": "standard",
+          "provider": "claude",
+          "strategy": "single_pass",
+          "value": 0.02089279518072289
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 0.002638786144578313
+        },
+        {
+          "tier": "lite",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 0.001074593373493976
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "agentic",
+          "value": 0.010634797590361447
+        },
+        {
+          "tier": "standard",
+          "provider": "gemini",
+          "strategy": "single_pass",
+          "value": 0.007479933734939759
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 0.005846076506024096
+        },
+        {
+          "tier": "lite",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 0.0032094487951807226
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "agentic",
+          "value": 0.024123765060240967
+        },
+        {
+          "tier": "standard",
+          "provider": "gpt",
+          "strategy": "single_pass",
+          "value": 0.01094394578313253
+        }
+      ]
+    }
+  ]
+}
