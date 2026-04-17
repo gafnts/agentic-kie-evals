@@ -30,7 +30,7 @@ dev = [
   "pre-commit>=4.5",
   "pyproject-fmt>=2.21",
   "python-dotenv>=1.2.2",
-  "ruff>=0.15",
+  "ruff>=0.15.11",
 ]
 
 [tool.hatch]
