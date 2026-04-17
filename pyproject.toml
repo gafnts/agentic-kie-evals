@@ -15,7 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-  "agentic-kie[all]>=0.5",
+  "agentic-kie[all]>=0.5.1",
   "altair>=6",
   "nda",
   "polars>=1.39.3",

@@ -12,16 +12,16 @@ resolution-markers = [
 
 [[package]]
 name = "agentic-kie"
-version = "0.5.0"
+version = "0.5.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "langchain" },
     { name = "pydantic" },
     { name = "pymupdf" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/a7/a5fe0368b85f6f662e250a330c7e770afab8e832e78a86572545a69287cc/agentic_kie-0.5.0.tar.gz", hash = "sha256:760b85f5dfc9fd4379b79d4f1fc1a2eb6635778eb035cce0ac3e00d1ac40bfd8", size = 848215, upload-time = "2026-04-11T18:23:49.693Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/de/c1/38f6e9d5b852656fc1ff95c4999b0c5ef1de0ef7e0687fac13b88c65c7ab/agentic_kie-0.5.1.tar.gz", hash = "sha256:3a177a1463b4858ef5f1ebe91516e01664edfdbb480c615712a573eaff6bdb81", size = 848318, upload-time = "2026-04-12T19:28:13.168Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/89/cb/baabe24032c2eefe8d1d2f1a4a5b7e0a8afa6922bf1908d13d3283893abc/agentic_kie-0.5.0-py3-none-any.whl", hash = "sha256:4896135cdcbe694b1a9d8e145dd43b6f3ba10c8cc1555f6346f8a018a87267cb", size = 18473, upload-time = "2026-04-11T18:23:48.06Z" },
+    { url = "https://files.pythonhosted.org/packages/84/6e/2d3d44082b7e3324b8e04b7deec35f8417d4b8f131e1a7a02b13dc330943/agentic_kie-0.5.1-py3-none-any.whl", hash = "sha256:aba755f76f4bc06cab815d331cca1a2ace06fbf43382833654ed26457ad487ec", size = 18565, upload-time = "2026-04-12T19:28:11.769Z" },
 ]
 
 [package.optional-dependencies]
@@ -57,7 +57,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "agentic-kie", extras = ["all"], specifier = ">=0.5.0" },
+    { name = "agentic-kie", extras = ["all"], specifier = ">=0.5.1" },
     { name = "altair", specifier = ">=6" },
     { name = "nda", git = "https://github.com/gafnts/kleister-nda-preparation.git" },
     { name = "polars", specifier = ">=1.39.3" },
