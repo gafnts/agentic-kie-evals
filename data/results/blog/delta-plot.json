@@ -1,0 +1,521 @@
+{
+  "directions": [
+    {
+      "key": "improved",
+      "label": "Improved",
+      "color": "teal"
+    },
+    {
+      "key": "unchanged",
+      "label": "Unchanged",
+      "color": "secondary"
+    },
+    {
+      "key": "regressed",
+      "label": "Regressed",
+      "color": "primary"
+    }
+  ],
+  "tabs": [
+    {
+      "id": "f1",
+      "label": "F1 Delta",
+      "chartType": "faceted-dot",
+      "xDomain": [
+        -1,
+        0.6
+      ],
+      "referenceX": 0,
+      "xLabel": "Agentic \u2013 Single-pass F1",
+      "facet": {
+        "rowKey": "tier",
+        "colKey": "provider"
+      },
+      "xKey": "delta",
+      "yKey": "doc_length",
+      "colorKey": "direction",
+      "sizeKey": "count",
+      "sizeLabel": "Observations",
+      "yOrder": [
+        "Short",
+        "Medium",
+        "Long",
+        "Very long"
+      ],
+      "data": [
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 3
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.286,
+          "count": 7
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 11
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.273,
+          "count": 11
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 11
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "improved",
+          "delta": 0.075,
+          "count": 1
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.353,
+          "count": 16
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 7
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.267,
+          "count": 5
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.5,
+          "count": 4
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 7
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 2
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 1
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 11
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.128,
+          "count": 3
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.3,
+          "count": 5
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 18
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.292,
+          "count": 10
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 12
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.458,
+          "count": 2
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.292,
+          "count": 6
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 13
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.354,
+          "count": 4
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 1
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.375,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "improved",
+          "delta": 0.148,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.36,
+          "count": 25
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 18
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.757,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 5
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "improved",
+          "delta": 0.438,
+          "count": 6
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 12
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 1
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.333,
+          "count": 6
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 18
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.286,
+          "count": 7
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 6
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.322,
+          "count": 5
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.167,
+          "count": 2
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 20
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 19
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 16
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 1
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 9
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 3
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 1
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 34
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "improved",
+          "delta": 0.271,
+          "count": 6
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.167,
+          "count": 2
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 34
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.083,
+          "count": 1
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 3
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 18
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 7
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 1
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.583,
+          "count": 2
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 9
+        }
+      ]
+    }
+  ]
+}
