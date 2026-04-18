@@ -1,0 +1,90 @@
+{
+  "title": "Per-field Exact F1",
+  "description": "Exact F1 score broken down by model configuration and extraction field",
+  "colorScale": {
+    "min": 0.5,
+    "max": 1.0,
+    "label": "Exact F1"
+  },
+  "rows": [
+    { "key": "claude_lite_agentic", "label": "claude lite agentic" },
+    { "key": "claude_lite_single_pass", "label": "claude lite single_pass" },
+    { "key": "claude_standard_agentic", "label": "claude standard agentic" },
+    { "key": "claude_standard_single_pass", "label": "claude standard single_pass" },
+    { "key": "gemini_lite_agentic", "label": "gemini lite agentic" },
+    { "key": "gemini_lite_single_pass", "label": "gemini lite single_pass" },
+    { "key": "gemini_standard_agentic", "label": "gemini standard agentic" },
+    { "key": "gemini_standard_single_pass", "label": "gemini standard single_pass" },
+    { "key": "gpt_lite_agentic", "label": "gpt lite agentic" },
+    { "key": "gpt_lite_single_pass", "label": "gpt lite single_pass" },
+    { "key": "gpt_standard_agentic", "label": "gpt standard agentic" },
+    { "key": "gpt_standard_single_pass", "label": "gpt standard single_pass" }
+  ],
+  "columns": [
+    { "key": "effective_date", "label": "effective_date" },
+    { "key": "party", "label": "party" },
+    { "key": "jurisdiction", "label": "jurisdiction" },
+    { "key": "term", "label": "term" }
+  ],
+  "data": [
+    { "row": "claude_lite_agentic", "col": "effective_date", "value": 0.807 },
+    { "row": "claude_lite_agentic", "col": "party", "value": 0.874 },
+    { "row": "claude_lite_agentic", "col": "jurisdiction", "value": 0.639 },
+    { "row": "claude_lite_agentic", "col": "term", "value": 0.663 },
+
+    { "row": "claude_lite_single_pass", "col": "effective_date", "value": 0.855 },
+    { "row": "claude_lite_single_pass", "col": "party", "value": 0.873 },
+    { "row": "claude_lite_single_pass", "col": "jurisdiction", "value": 0.952 },
+    { "row": "claude_lite_single_pass", "col": "term", "value": 0.807 },
+
+    { "row": "claude_standard_agentic", "col": "effective_date", "value": 0.916 },
+    { "row": "claude_standard_agentic", "col": "party", "value": 0.880 },
+    { "row": "claude_standard_agentic", "col": "jurisdiction", "value": 0.819 },
+    { "row": "claude_standard_agentic", "col": "term", "value": 0.819 },
+
+    { "row": "claude_standard_single_pass", "col": "effective_date", "value": 0.867 },
+    { "row": "claude_standard_single_pass", "col": "party", "value": 0.837 },
+    { "row": "claude_standard_single_pass", "col": "jurisdiction", "value": 0.916 },
+    { "row": "claude_standard_single_pass", "col": "term", "value": 0.807 },
+
+    { "row": "gemini_lite_agentic", "col": "effective_date", "value": 0.904 },
+    { "row": "gemini_lite_agentic", "col": "party", "value": 0.842 },
+    { "row": "gemini_lite_agentic", "col": "jurisdiction", "value": 0.880 },
+    { "row": "gemini_lite_agentic", "col": "term", "value": 0.735 },
+
+    { "row": "gemini_lite_single_pass", "col": "effective_date", "value": 0.904 },
+    { "row": "gemini_lite_single_pass", "col": "party", "value": 0.872 },
+    { "row": "gemini_lite_single_pass", "col": "jurisdiction", "value": 0.976 },
+    { "row": "gemini_lite_single_pass", "col": "term", "value": 0.831 },
+
+    { "row": "gemini_standard_agentic", "col": "effective_date", "value": 0.940 },
+    { "row": "gemini_standard_agentic", "col": "party", "value": 0.878 },
+    { "row": "gemini_standard_agentic", "col": "jurisdiction", "value": 0.976 },
+    { "row": "gemini_standard_agentic", "col": "term", "value": 0.880 },
+
+    { "row": "gemini_standard_single_pass", "col": "effective_date", "value": 0.928 },
+    { "row": "gemini_standard_single_pass", "col": "party", "value": 0.878 },
+    { "row": "gemini_standard_single_pass", "col": "jurisdiction", "value": 0.976 },
+    { "row": "gemini_standard_single_pass", "col": "term", "value": 0.880 },
+
+    { "row": "gpt_lite_agentic", "col": "effective_date", "value": 0.783 },
+    { "row": "gpt_lite_agentic", "col": "party", "value": 0.819 },
+    { "row": "gpt_lite_agentic", "col": "jurisdiction", "value": 0.518 },
+    { "row": "gpt_lite_agentic", "col": "term", "value": 0.566 },
+
+    { "row": "gpt_lite_single_pass", "col": "effective_date", "value": 0.819 },
+    { "row": "gpt_lite_single_pass", "col": "party", "value": 0.858 },
+    { "row": "gpt_lite_single_pass", "col": "jurisdiction", "value": 0.928 },
+    { "row": "gpt_lite_single_pass", "col": "term", "value": 0.855 },
+
+    { "row": "gpt_standard_agentic", "col": "effective_date", "value": 0.867 },
+    { "row": "gpt_standard_agentic", "col": "party", "value": 0.871 },
+    { "row": "gpt_standard_agentic", "col": "jurisdiction", "value": 0.964 },
+    { "row": "gpt_standard_agentic", "col": "term", "value": 0.880 },
+
+    { "row": "gpt_standard_single_pass", "col": "effective_date", "value": 0.916 },
+    { "row": "gpt_standard_single_pass", "col": "party", "value": 0.861 },
+    { "row": "gpt_standard_single_pass", "col": "jurisdiction", "value": 0.952 },
+    { "row": "gpt_standard_single_pass", "col": "term", "value": 0.867 }
+  ]
+}

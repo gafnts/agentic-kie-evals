@@ -10,7 +10,7 @@
 ---
 
 <p align="center">
-Extracting structured fields from legal contracts is deceptively hard. This project measures how well modern LLMs handle that on real NDA documents from SEC Edgar, comparing. The benchmark covers three provider families (Claude, Gemini, and GPT) and scores each run in LangSmith using exact and fuzzy F1 evaluators.
+Extracting structured fields from legal documents is deceptively hard. This project measures how well modern LLMs handle that on real NDA documents from the SEC Edgar database. The benchmark covers three model families (Claude, Gemini, and GPT) and scores each run in LangSmith using exact and fuzzy F1 evaluators.
 </p>
 
 ## Contents
@@ -33,7 +33,7 @@ Dataset preprocessing and delivery is handled by the Python package [kleister-nd
 
 ### Uploading the dataset to LangSmith
 
-Before running the benchmark, the preprocessed Parquet files and their PDF attachments need to be uploaded to [LangSmith](https://smith.langchain.com/). The `upload_dataset.py` module supports several behaviors:
+Before running the benchmark, the preprocessed Parquet files and their PDF attachments need to be uploaded to [LangSmith](https://smith.langchain.com/). The [upload_dataset.py](src/agentic_kie_evals/upload_dataset.py) module supports several behaviors:
 
 1. Dry run (validates parquet files and PDF paths, no API calls)
 ```bash
@@ -99,13 +99,13 @@ uv run python -m agentic_kie_evals.run_benchmark --tier standard
 | `--dry-run` | — | false | Print the experiment matrix and exit |
 
 > [!NOTE]
-> Modalities are configured via `SINGLE_PASS_MODALITIES` and `AGENTIC_MODALITIES` in `run_benchmark.py`.
+> Modalities are configured via `SINGLE_PASS_MODALITIES` and `AGENTIC_MODALITIES` in [run_benchmark.py](src/agentic_kie_evals/run_benchmark.py).
 
 ---
 
 ## Evaluators
 
-Evaluators live in `agentic_kie_evals.evaluators` and follow the LangSmith custom evaluator signature `(outputs, reference_outputs) -> {"key": str, "score": float}`.
+Evaluators live in [evaluators.py](src/agentic_kie_evals/evaluators.py) and follow the LangSmith custom evaluator signature `(outputs, reference_outputs) -> {"key": str, "score": float}`.
 
 | Evaluator | Field | Method | Score |
 |---|---|---|---|
