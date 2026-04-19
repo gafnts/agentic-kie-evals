@@ -48,101 +48,157 @@
           "tier": "lite",
           "doc_length": "Long",
           "direction": "improved",
+          "delta": 0.288,
+          "count": 2
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.333,
+          "count": 6
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 1
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.208,
+          "count": 4
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.35,
+          "count": 10
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 10
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "improved",
           "delta": 0.25,
           "count": 3
         },
         {
           "provider": "claude",
           "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.31,
+          "count": 19
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 25
+        },
+        {
+          "provider": "claude",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "regressed",
+          "delta": -0.417,
+          "count": 3
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
           "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.333,
+          "count": 3
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 6
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 1
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Medium",
           "direction": "regressed",
           "delta": -0.286,
           "count": 7
         },
         {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 11
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "regressed",
-          "delta": -0.273,
-          "count": 11
-        },
-        {
-          "provider": "claude",
+          "provider": "gemini",
           "tier": "lite",
           "doc_length": "Medium",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 11
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "improved",
-          "delta": 0.075,
-          "count": 1
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "regressed",
-          "delta": -0.353,
           "count": 16
         },
         {
-          "provider": "claude",
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "improved",
+          "delta": 0.143,
+          "count": 5
+        },
+        {
+          "provider": "gemini",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.288,
+          "count": 11
+        },
+        {
+          "provider": "gemini",
           "tier": "lite",
           "doc_length": "Short",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 7
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Very long",
-          "direction": "improved",
-          "delta": 0.267,
-          "count": 5
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Very long",
-          "direction": "regressed",
-          "delta": -0.5,
-          "count": 4
-        },
-        {
-          "provider": "claude",
-          "tier": "lite",
-          "doc_length": "Very long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 7
+          "count": 31
         },
         {
           "provider": "gemini",
           "tier": "lite",
-          "doc_length": "Long",
+          "doc_length": "Very long",
           "direction": "improved",
-          "delta": 0.25,
-          "count": 2
+          "delta": 0.833,
+          "count": 1
         },
         {
           "provider": "gemini",
           "tier": "lite",
-          "doc_length": "Long",
+          "doc_length": "Very long",
           "direction": "regressed",
           "delta": -0.25,
           "count": 1
@@ -150,146 +206,90 @@
         {
           "provider": "gemini",
           "tier": "lite",
-          "doc_length": "Long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 11
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "improved",
-          "delta": 0.128,
-          "count": 3
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "regressed",
-          "delta": -0.3,
-          "count": 5
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 18
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "regressed",
-          "delta": -0.292,
-          "count": 10
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 12
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Very long",
-          "direction": "improved",
-          "delta": 0.458,
-          "count": 2
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
-          "doc_length": "Very long",
-          "direction": "regressed",
-          "delta": -0.292,
-          "count": 6
-        },
-        {
-          "provider": "gemini",
-          "tier": "lite",
           "doc_length": "Very long",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 13
+          "count": 1
         },
         {
           "provider": "gpt",
           "tier": "lite",
           "doc_length": "Long",
           "direction": "regressed",
-          "delta": -0.354,
+          "delta": -0.417,
+          "count": 5
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
           "count": 4
         },
         {
           "provider": "gpt",
           "tier": "lite",
-          "doc_length": "Long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 6
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.188,
+          "count": 2
         },
         {
           "provider": "gpt",
           "tier": "lite",
           "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.396,
+          "count": 13
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 9
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
           "direction": "improved",
-          "delta": 0.25,
+          "delta": 0.17,
+          "count": 4
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.442,
+          "count": 22
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 21
+        },
+        {
+          "provider": "gpt",
+          "tier": "lite",
+          "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.083,
           "count": 1
         },
         {
           "provider": "gpt",
           "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "regressed",
-          "delta": -0.375,
-          "count": 6
-        },
-        {
-          "provider": "gpt",
-          "tier": "lite",
-          "doc_length": "Medium",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 6
-        },
-        {
-          "provider": "gpt",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "improved",
-          "delta": 0.148,
-          "count": 6
-        },
-        {
-          "provider": "gpt",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "regressed",
-          "delta": -0.36,
-          "count": 25
-        },
-        {
-          "provider": "gpt",
-          "tier": "lite",
-          "doc_length": "Short",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 18
-        },
-        {
-          "provider": "gpt",
-          "tier": "lite",
           "doc_length": "Very long",
           "direction": "regressed",
-          "delta": -0.757,
-          "count": 6
+          "delta": -0.25,
+          "count": 1
         },
         {
           "provider": "gpt",
@@ -297,84 +297,124 @@
           "doc_length": "Very long",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 5
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Long",
-          "direction": "improved",
-          "delta": 0.438,
-          "count": 6
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 12
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Medium",
-          "direction": "improved",
-          "delta": 0.25,
           "count": 1
         },
         {
           "provider": "claude",
           "tier": "standard",
-          "doc_length": "Medium",
-          "direction": "regressed",
-          "delta": -0.333,
-          "count": 6
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Medium",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 18
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Short",
-          "direction": "regressed",
-          "delta": -0.286,
-          "count": 7
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Short",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 6
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Very long",
+          "doc_length": "Long",
           "direction": "improved",
-          "delta": 0.322,
-          "count": 5
-        },
-        {
-          "provider": "claude",
-          "tier": "standard",
-          "doc_length": "Very long",
-          "direction": "regressed",
-          "delta": -0.167,
+          "delta": 0.138,
           "count": 2
         },
         {
           "provider": "claude",
           "tier": "standard",
+          "doc_length": "Long",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 2
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 5
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.183,
+          "count": 3
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 1
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 20
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "improved",
+          "delta": 0.596,
+          "count": 6
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.299,
+          "count": 12
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 29
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
           "doc_length": "Very long",
+          "direction": "improved",
+          "delta": 0.083,
+          "count": 1
+        },
+        {
+          "provider": "claude",
+          "tier": "standard",
+          "doc_length": "Very long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 2
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Long",
+          "direction": "unchanged",
+          "delta": 0.0,
+          "count": 9
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "improved",
+          "delta": 0.25,
+          "count": 3
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Medium",
+          "direction": "regressed",
+          "delta": -0.25,
+          "count": 1
+        },
+        {
+          "provider": "gemini",
+          "tier": "standard",
+          "doc_length": "Medium",
           "direction": "unchanged",
           "delta": 0.0,
           "count": 20
@@ -382,22 +422,6 @@
         {
           "provider": "gemini",
           "tier": "standard",
-          "doc_length": "Long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 19
-        },
-        {
-          "provider": "gemini",
-          "tier": "standard",
-          "doc_length": "Medium",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 16
-        },
-        {
-          "provider": "gemini",
-          "tier": "standard",
           "doc_length": "Short",
           "direction": "regressed",
           "delta": -0.25,
@@ -409,47 +433,31 @@
           "doc_length": "Short",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 9
+          "count": 46
         },
         {
           "provider": "gemini",
           "tier": "standard",
           "doc_length": "Very long",
-          "direction": "improved",
-          "delta": 0.25,
+          "direction": "unchanged",
+          "delta": 0.0,
           "count": 3
         },
         {
-          "provider": "gemini",
-          "tier": "standard",
-          "doc_length": "Very long",
-          "direction": "regressed",
-          "delta": -0.25,
-          "count": 1
-        },
-        {
-          "provider": "gemini",
-          "tier": "standard",
-          "doc_length": "Very long",
-          "direction": "unchanged",
-          "delta": 0.0,
-          "count": 34
-        },
-        {
           "provider": "gpt",
           "tier": "standard",
           "doc_length": "Long",
           "direction": "improved",
-          "delta": 0.271,
-          "count": 6
+          "delta": 0.25,
+          "count": 1
         },
         {
           "provider": "gpt",
           "tier": "standard",
           "doc_length": "Long",
           "direction": "regressed",
-          "delta": -0.167,
-          "count": 2
+          "delta": -0.208,
+          "count": 4
         },
         {
           "provider": "gpt",
@@ -457,22 +465,14 @@
           "doc_length": "Long",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 34
+          "count": 4
         },
         {
           "provider": "gpt",
           "tier": "standard",
           "doc_length": "Medium",
           "direction": "improved",
-          "delta": 0.083,
-          "count": 1
-        },
-        {
-          "provider": "gpt",
-          "tier": "standard",
-          "doc_length": "Medium",
-          "direction": "regressed",
-          "delta": -0.25,
+          "delta": 0.194,
           "count": 3
         },
         {
@@ -481,7 +481,23 @@
           "doc_length": "Medium",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 18
+          "count": 21
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "improved",
+          "delta": 0.097,
+          "count": 3
+        },
+        {
+          "provider": "gpt",
+          "tier": "standard",
+          "doc_length": "Short",
+          "direction": "regressed",
+          "delta": -0.472,
+          "count": 3
         },
         {
           "provider": "gpt",
@@ -489,23 +505,15 @@
           "doc_length": "Short",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 7
+          "count": 41
         },
         {
           "provider": "gpt",
           "tier": "standard",
           "doc_length": "Very long",
           "direction": "improved",
-          "delta": 0.25,
+          "delta": 0.833,
           "count": 1
-        },
-        {
-          "provider": "gpt",
-          "tier": "standard",
-          "doc_length": "Very long",
-          "direction": "regressed",
-          "delta": -0.583,
-          "count": 2
         },
         {
           "provider": "gpt",
@@ -513,7 +521,7 @@
           "doc_length": "Very long",
           "direction": "unchanged",
           "delta": 0.0,
-          "count": 9
+          "count": 2
         }
       ]
     }
